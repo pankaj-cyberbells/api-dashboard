@@ -13,11 +13,9 @@ const router= express.Router();
 router.get( "/get/:id", getCustomer);
 router.get( "/get-all",  getAll);
 router.get( "/group-customer",  getByGroupByAggregate);
-// end point will look like -------> GET /api/group-customer?groupBy=movementevent&aggregateFields=invoice,movdate
+// end point will look like -------> GET "http://localhost:5500/api/group-customer?groupBy=name,salelocation&aggregateFields=invoice,promotype&page=1&limit=10"
 router.get( "/search-customer",  getBySearchQuery); 
-// end point will look like -------> GET /api/search-customer?movdate_range=2023-07-01,2023-07-31
-
-// router.delete( "/book/:id", middleware, deleteBook);
+// end point will look like -------> GET "http://localhost:5500/api/search-customer?movdate_range=2023-07-01,2023-07-31"
 
 
 

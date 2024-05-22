@@ -1,11 +1,2 @@
-export const buildAggregationOperations = (fields) => {
-  const operations = {};
-
-  fields.forEach(field => {
-    operations[field] = {
-      $push: `$${field}`
-    };
-  });
-
-  return operations;
-};
+export const buildAggregationOperations = (fields) =>
+  fields.reduce((acc, field) => ({ ...acc, [field]: { $push: `$${field}` } }), {});
