@@ -3,9 +3,9 @@ import routes from "./routes/routes.js"
 import {connectToDB} from "./db.js"
 import { fetchAndStoreData } from "./utils/cron.js";
 import cron from "node-cron"
-
-export const jwtSecrete="KJDH784TVDTST6367367TF3Y87G"
-const port=5500;
+import * as dotenv from "dotenv"
+dotenv.config()
+const port=process.env.PORT ||5500;
 const app=express();
 
 
