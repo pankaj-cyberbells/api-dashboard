@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, AppBar, Toolbar, Typography, Tabs, Tab, Box } from '@mui/material';
+import Navbar from '../components/Navbar';
 
 const headerNames = [
   'Traralgon',
@@ -63,13 +64,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Dashboard
-          </Typography>
-        </Toolbar>
-      </AppBar>
+       <Navbar/>
       <Paper sx={{ width: '98%', marginTop: 5, marginLeft: '15px', padding: '10px' }}>
         <Box 
           sx={{ 
