@@ -75,5 +75,44 @@ export const getByGroupByAggregate = async (req, res) => {
 
 
 
+export const getTmbByQuery=async(req,res)=>{
+  const { startDate, endDate } = req.query;
+  let dateFilter = {};
 
+  if (startDate && endDate) {
+    dateFilter = { saledate_rep_: { $gte: startDate, $lte: endDate } };
+  }
+
+  try {
+    const telstraCounts = await Customer.aggregate([
+      {
+        $match: {
+          carrier: 'Telstra Mobile Broadband (Business)',
+          ...dateFilter
+        }
+      },
+      {
+        $group: {
+          _id: {
+            salesrep: '$salesrep',
+            salelocation: '$salelocation'
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          salesrep: '$_id.salesrep',
+          salelocation: '$_id.salelocation',
+          count: 1
+        }
+      }
+    ]);
+
+    res.status(200).json(telstraCounts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
 
