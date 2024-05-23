@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadData } from '../features/tableDataSlice';
 import DateInputs from '../components/DateInputs';
+import CircularIndicator from '../components/CircularIndicator';
 
 const headerNames = [
   'Traralgon',
@@ -45,20 +46,20 @@ export default function Dashboard() {
   const [editingCell, setEditingCell] = useState(null); // To track the cell being edited
   const [mutableData, setMutableData] = useState([]); // To hold a mutable copy of data
 
-  console.log(mutableData,"mutableData")
   const dispatch = useDispatch();
   const { data, loading, error } = useSelector((state) => state.tableData);
- 
+  console.log(data)
   useEffect(() => {
     const startDate = '01/02/24'; // replace with dynamic date from your component state
     const endDate = '16/05/24'; 
     dispatch(loadData({ startDate, endDate }));
-
+    
   }, [dispatch]);
-console.log(data,"dta")
-useEffect(() => {
-  setMutableData(data.map(item => ({ ...item }))); // Create a mutable copy of data
-}, [data]);
+
+  useEffect(() => {
+    setMutableData(data.map(item => ({ ...item }))); // Create a mutable copy of data
+  }, [data]);
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
@@ -79,11 +80,6 @@ useEffect(() => {
     setEditingCell({ rowIndex, columnId });
   };
 
-  // const handleInputChange = (event, rowIndex, columnId) => {
-  //   const newData = [...mutableData];
-  //   newData[rowIndex][columnId] = event.target.value;
-  //   setMutableData(newData); // Update the state with newData
-  // };
   const handleInputChange = (event, rowIndex, columnId) => {
     setMutableData(prevData => {
       const newData = [...prevData];
@@ -91,11 +87,6 @@ useEffect(() => {
       return newData;
     });
   };
-
-  // const handleBlur = () => {
-  //   setEditingCell(null);
-  
-  // };
 
   const handleBlur = (rowIndex, columnId) => {
     if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === columnId) {
@@ -109,16 +100,21 @@ useEffect(() => {
   const tabs = ['All Stores', 'Traralgon', 'Warragul', 'Torquay'];
 
   // Filter data to show only "Traralgon" sales location
-  const filteredData = mutableData.filter(item => item.salelocation === 'Traralgon');
-console.log(filteredData,"hf")
+  // const filteredData = mutableData.filter(item => item.salelocation === 'Traralgon');
+
   // Map filtered data to match the table structure
-  const rows = filteredData.map(item => ({
+  const rows = data.map(item => ({
     'column-0': item.salesrep,
     'column-1': item.npsVol,
     'column-2': item.npsScore,
     'column-3': item.adv109,
     'column-4': item.pass87,
-    'column-8': item.count,
+    'column-6':item.pnncount,
+    'column-8': item.tmbcount,
+    'column-9': item.upgrade,
+    'column-14': item.dcpcount,
+    'column-18': item.gpvalue,
+    'column-5': item.tbm // Make sure this matches the data structure
   }));
 
   return (
@@ -154,7 +150,7 @@ console.log(filteredData,"hf")
              marginRight: '2px', paddingY:'18.5px'}} />
             ))}
           </Tabs>
-          <DateInputs />
+          <DateInputs  />
         </Box>
         
         <TableContainer sx={{ maxHeight: 480, borderRadius: '0 0 8px 8px', border: '2px solid #e0e0e0', borderTop: 'none' }}>
@@ -166,7 +162,7 @@ console.log(filteredData,"hf")
                 <TableCell colSpan={1} align="center" style={{ borderRight: '1px solid #e0e0e0' }}>14%</TableCell>
                 <TableCell colSpan={1} align="center" style={{ borderRight: '1px solid #e0e0e0' }}>14%</TableCell>
                 <TableCell colSpan={1} style={{ borderRight: '1px solid #e0e0e0' }}/>
-                <TableCell colSpan={3} align="center" style={{ borderRight: '1px solid #e0e0e0' }}>20% cumpulsory KPI</TableCell>
+                <TableCell colSpan={3} align="center" style={{ borderRight: '1px solid #e0e0e0' }}>20% compulsory KPI</TableCell>
                 <TableCell colSpan={6} style={{ borderRight: '1px solid #e0e0e0' }}/>
               </TableRow>
               <TableRow>
@@ -191,23 +187,32 @@ console.log(filteredData,"hf")
                       const isEditable = colIndex >= 1 && colIndex <= 4; // Make columns 2, 3, 4, 5 editable
                       return (
                         <TableCell
-                        key={column.id}
-                        align={column.align}
-                        onDoubleClick={() => isEditable && handleDoubleClick(rowIndex, column.id)}
-                        onBlur={() => isEditable && handleBlur(rowIndex, column.id)} // Uncomment this line
-                        style={{ border: '1px solid #e0e0e0' }}
-                      >
-  {editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === column.id ? (
-    <TextField
-      value={mutableData[rowIndex][column.id]}
-      onChange={(event) => handleInputChange(event, rowIndex, column.id)}
-      onBlur={() => handleBlur(rowIndex, column.id)}
-      autoFocus
-    />
-  ) : (
-    value
-  )}
-</TableCell>
+                          key={column.id}
+                          align={column.align}
+                          onDoubleClick={() => isEditable && handleDoubleClick(rowIndex, column.id)}
+                          onBlur={() => isEditable && handleBlur(rowIndex, column.id)}
+                          style={{
+                            border: '1px solid #e0e0e0',
+                            display: column.id === 'column-8' ? 'flex' : 'table-cell',
+                            alignItems: column.id === 'column-8' ? 'center' : 'inherit',
+                            justifyContent: column.id === 'column-8' ? 'center' : 'inherit'
+                          }}
+                        >
+                          {editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === column.id ? (
+                            <TextField
+                              value={mutableData[rowIndex][column.id]}
+                              onChange={(event) => handleInputChange(event, rowIndex, column.id)}
+                              onBlur={() => handleBlur(rowIndex, column.id)}
+                              autoFocus
+                            />
+                          ) : (
+                            column.id === 'column-8' ? (
+                              <CircularIndicator value={value} />
+                            ) : (
+                              value
+                            )
+                          )}
+                        </TableCell>
                       );
                     })}
                   </TableRow>
