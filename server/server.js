@@ -1,5 +1,6 @@
 import express from "express";
 import routes from "./routes/routes.js"
+import cors from "cors"
 import {connectToDB} from "./db.js"
 import { fetchAndStoreData } from "./utils/cron.js";
 import cron from "node-cron"
@@ -11,6 +12,7 @@ const app=express();
 
 
 app.use(express.json());
+app.use(cors());
 
 app.get("/", (req,res)=>{
   res.send("<h1>hello from express server </h1>")
