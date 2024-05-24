@@ -4,8 +4,8 @@ import { fetchData } from '../api/services';
 
 export const loadData = createAsyncThunk(
   'tableData/loadData',
-  async ({ startDate, endDate }) => {
-    const response = await fetchData(startDate, endDate);
+  async ({salelocation, startDate, endDate }) => {
+    const response = await fetchData(salelocation,startDate, endDate);
     return response;
   }
 );

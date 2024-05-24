@@ -42,20 +42,50 @@ const columns = headerNames.map((header, index) => ({
 export default function Dashboard() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [selectedTab, setSelectedTab] = useState(0);
+  const [selectedTab, setSelectedTab] = useState({ index: 0, value: 'Traralgon' });
   const [editingCell, setEditingCell] = useState(null); // To track the cell being edited
   const [mutableData, setMutableData] = useState([]); // To hold a mutable copy of data
-
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  
   const dispatch = useDispatch();
   const { data, loading, error } = useSelector((state) => state.tableData);
   console.log(data)
-  useEffect(() => {
-    const startDate = '01/02/24'; // replace with dynamic date from your component state
-    const endDate = '16/05/24'; 
-    dispatch(loadData({ startDate, endDate }));
-    
-  }, [dispatch]);
 
+  useEffect(() => {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    const formattedFromDate = formatDate(thirtyDaysAgo);
+    const formattedToDate = formatDate(today);
+    setFromDate(formattedFromDate);
+    setToDate(formattedToDate);
+    dispatch(loadData({salelocation:  selectedTab.value,  startDate: formattedFromDate, endDate: formattedToDate }));
+  }, [dispatch,,selectedTab]);
+
+  const formatDate = (date) => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(2); // Get last 2 digits of the year
+    return `${day}/${month}/${year}`;
+  };
+
+  const fetchData = () => {
+    const startDate = fromDate.split('-').reverse().join('/');
+    const endDate = toDate.split('-').reverse().join('/');
+    dispatch(loadData({ salelocation:  selectedTab.value,startDate, endDate }));
+  };
+  // useEffect(() => {
+  //   const startDate = '01/02/24'; // replace with dynamic date from your component state
+  //   const endDate = '16/05/24'; 
+  //   dispatch(loadData({ startDate, endDate }));
+    
+  // }, [dispatch]);
+  // const fetchData = () => {
+  //   const startDate = fromDate.split('-').reverse().join('/');
+  //   const endDate = toDate.split('-').reverse().join('/');
+  //   dispatch(loadData({ startDate, endDate }));
+  // };
   useEffect(() => {
     setMutableData(data.map(item => ({ ...item }))); // Create a mutable copy of data
   }, [data]);
@@ -73,7 +103,8 @@ export default function Dashboard() {
   };
 
   const handleTabChange = (event, newValue) => {
-    setSelectedTab(newValue);
+    const selectedTabValue = tabs[newValue];
+    setSelectedTab({ index: newValue, value: selectedTabValue });
   };
 
   const handleDoubleClick = (rowIndex, columnId) => {
@@ -113,7 +144,7 @@ export default function Dashboard() {
     'column-8': item.tmbcount,
     'column-9': item.upgrade,
     'column-14': item.dcpcount,
-    'column-18': item.gpvalue,
+    'column-17': item.gpvalue,
     'column-5': item.tbm // Make sure this matches the data structure
   }));
 
@@ -132,13 +163,14 @@ export default function Dashboard() {
           }}
         >
           <Tabs
-            value={selectedTab}
+            value={selectedTab.index}
             onChange={handleTabChange}
             indicatorColor="primary"
             textColor="primary"
             variant="scrollable"
             scrollButtons="auto"
             aria-label="scrollable auto tabs example"
+            
             sx={{ minHeight: '48px' }}
           >
             {tabs.map((tab, index) => (
@@ -147,10 +179,18 @@ export default function Dashboard() {
               borderLeft: '2px solid #e0e0e0', 
               borderRight: '2px solid #e0e0e0',
               borderTop: '2px solid #e0e0e0',
-             marginRight: '2px', paddingY:'18.5px'}} />
+             marginRight: '2px', paddingY:'25.5px'}} />
             ))}
           </Tabs>
-          <DateInputs  />
+          {/* <DateInputs  />
+           */}
+           <DateInputs
+            fromDate={fromDate}
+            toDate={toDate}
+            setFromDate={setFromDate}
+            setToDate={setToDate}
+            fetchData={fetchData}
+          />
         </Box>
         
         <TableContainer sx={{ maxHeight: 480, borderRadius: '0 0 8px 8px', border: '2px solid #e0e0e0', borderTop: 'none' }}>

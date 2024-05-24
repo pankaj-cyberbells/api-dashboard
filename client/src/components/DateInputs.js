@@ -1,43 +1,33 @@
 // DateInputs.js
-
 import React, { useState, useEffect } from 'react';
 import { Box, TextField, Button } from '@mui/material';
+import { formattDate } from '../utils/formatDate';
+// function formatDate(date) {
+//   const day = String(date.getDate());
+//   const month = String(date.getMonth() + 1); // Months are zero-based
+//   const year = String(date.getFullYear());
 
-function DateInputs() {
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
-  const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+//   return `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
+// }
 
-  useEffect(() => {
-    const today = new Date();
-    const thirtyDaysAgo = new Date(today);
-    thirtyDaysAgo.setDate(today.getDate() - 30);
-    const formattedDate = thirtyDaysAgo.toISOString().split('T')[0];
-    setFromDate(formattedDate);
-    setToDate(currentDate);
-  }, []); // Empty dependency array to run this effect only once on initial render
-
+const DateInputs = ({ fromDate, toDate, setFromDate, setToDate, fetchData }) => {
   const handleFromDateChange = (event) => {
-    const selectedFromDate = event.target.value;
-    setFromDate(selectedFromDate);
-
-    // If the selected "From Date" is today, set the "To Date" to today to prevent selecting the next day or next month
-    if (selectedFromDate === currentDate) {
-      setToDate(currentDate);
-    } else {
-      setToDate('');
-    }
+    setFromDate(event.target.value);
   };
 
   const handleToDateChange = (event) => {
-    const selectedToDate = event.target.value;
-    setToDate(selectedToDate);
+    setToDate(event.target.value);
+  };
+
+  const handleApplyClick = () => {
+    const formattedFromDate = formattDate(new Date(fromDate));
+    const formattedToDate = formattDate(new Date(toDate));
+    fetchData(formattedFromDate, formattedToDate);
   };
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', marginRight: '10px' }}>
+    <Box display="flex" alignItems="center" padding="8px">
       <TextField
-        id="from-date"
         label="From Date"
         type="date"
         value={fromDate}
@@ -45,11 +35,9 @@ function DateInputs() {
         InputLabelProps={{
           shrink: true,
         }}
-        variant="outlined"
         sx={{ marginRight: '10px' }}
       />
       <TextField
-        id="to-date"
         label="To Date"
         type="date"
         value={toDate}
@@ -57,15 +45,18 @@ function DateInputs() {
         InputLabelProps={{
           shrink: true,
         }}
-        inputProps={{
-          min: fromDate, // Limit selectable dates based on "From Date"
-        }}
-        variant="outlined"
         sx={{ marginRight: '10px' }}
       />
-      <Button variant="contained">Apply</Button>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleApplyClick}
+        sx={{ height: 'fit-content' }}
+      >
+        Apply
+      </Button>
     </Box>
   );
-}
+};
 
 export default DateInputs;
