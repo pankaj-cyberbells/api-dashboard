@@ -181,16 +181,21 @@ export const getDataByStore = async (req, res) => {
   if (!salelocation) {
     return res.status(400).json({ message: "Please provide a salelocation" });
   }
-
   let dateFilter = {};
 
   if (startDate && endDate) {
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
     dateFilter = {
-      saledate_rep_: { $gte: formattedStartDate, $lte: formattedEndDate },
+      $expr: {
+        $and: [
+          { $gte: [{ $dateFromString: { dateString: { $concat: [{ $substr: ["$saledate_rep_", 6, 2] }, "-", { $substr: ["$saledate_rep_", 3, 2] }, "-", { $substr: ["$saledate_rep_", 0, 2] }] } } }, new Date(formattedStartDate)] },
+          { $lte: [{ $dateFromString: { dateString: { $concat: [{ $substr: ["$saledate_rep_", 6, 2] }, "-", { $substr: ["$saledate_rep_", 3, 2] }, "-", { $substr: ["$saledate_rep_", 0, 2] }] } } }, new Date(formattedEndDate)] },
+        ]
+      }
     };
   }
+
 
   try {
     const filter = {
@@ -204,7 +209,6 @@ export const getDataByStore = async (req, res) => {
       {
         $group: {
           _id: "$salesrep",
-
           pnncount: {
             $sum: {
               $cond: [
@@ -287,7 +291,34 @@ export const getDataByStore = async (req, res) => {
               ],
             },
           },
+          dates: {
+            $addToSet: "$saledate_rep_" // Use $addToSet instead of $push to omit repetitive dates
+          },
         },
+      },
+      {
+        $addFields: {
+          sortedDates: {
+            $map: {
+              input: "$dates",
+              as: "date",
+              in: {
+                $dateFromString: {
+                  dateString: {
+                    $concat: [
+                      { $substr: ["$$date", 6, 2] },
+                      "-",
+                      { $substr: ["$$date", 3, 2] },
+                      "-",
+                      { $substr: ["$$date", 0, 2] }
+                    ]
+                  },
+                  format: "%Y-%m-%d"
+                }
+              }
+            }
+          }
+        }
       },
       {
         $project: {
@@ -300,9 +331,17 @@ export const getDataByStore = async (req, res) => {
           upgrade: 1,
           dcpcount: 1,
           gpvalue: 1,
+          sortedDates: 1,
+        },
+      },
+      {
+        $sort: {
+          salesrep: 1 // Sort by salesrep in alphabetical order
         },
       },
     ]);
+    
+    
 
     res.status(200).json(salesreps);
   } catch (error) {
