@@ -10,10 +10,15 @@ import { formattDate } from '../utils/formatDate';
 //   return `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
 // }
 
+
 const DateInputs = ({ fromDate, toDate, setFromDate, setToDate, fetchData }) => {
   const handleFromDateChange = (event) => {
     setFromDate(event.target.value);
   };
+
+  useEffect(()=>{
+console.log({ fromDate, toDate})
+  },[])
 
   const handleToDateChange = (event) => {
     setToDate(event.target.value);
@@ -58,5 +63,4 @@ const DateInputs = ({ fromDate, toDate, setFromDate, setToDate, fetchData }) => 
     </Box>
   );
 };
-
 export default DateInputs;
