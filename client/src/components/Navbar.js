@@ -1,16 +1,19 @@
-import React from 'react'
-import {  AppBar, Toolbar, Typography,  } from '@mui/material';
+import React from 'react';
+import { AppBar, Toolbar, Typography, Button } from '@mui/material';
+import { Link } from 'react-router-dom';
+
 function Navbar() {
   return (
     <AppBar position="static">
-    <Toolbar>
-      <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-        Dashboard
-      </Typography>
-    </Toolbar>
-  </AppBar>
-  )
+      <Toolbar sx={{ justifyContent: 'start' }}>
+        {/* <Typography variant="h6" component="div">
+          Dashboard
+        </Typography> */}
+         <Button component={Link} to="/dashboard" color="inherit">DASHBOARD</Button>
+        <Button component={Link} to="/settarget" color="inherit">SETTARGET</Button>
+      </Toolbar>
+    </AppBar>
+  );
 }
 
-export default Navbar
-
+export default Navbar;
