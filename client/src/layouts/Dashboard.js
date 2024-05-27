@@ -8,36 +8,36 @@
   import { loadData } from '../features/tableDataSlice';
   import DateInputs from '../components/DateInputs';
   import CircularIndicator from '../components/CircularIndicator';
-
-  const headerNames = [
-    'Traralgon',
-    'NPSVol',
-    'NPS Score',
-    'adv 10-9',
-    'Pass 8-7',
-    'Detr<6',
-    'PPN(6)',
-    'Bundle New (2)',
-    'TMB (5)',
-    'Upgrade & Protect',
-    'Tyro (2)',
-    'Website BAS (1)',
-    'Device Security($10/m)(1)',
-    'Outright Mobile/Tablet Inc Prepaid',
-    'DCP Mobile/Tablet',
-    'Smart Watch',
-    'Acc GP',
-    'Handset/Plan GP',
-    'Total GP'
-  ];
-
-  const columns = headerNames.map((header, index) => ({
-    id: `column-${index}`,
-    label: header,
-    minWidth: 120,
-    align: 'center',
-    format: (value) => value
-  }));
+  import { getTargetThunk } from '../features/targetSlice';
+  // const headerNames = [
+  //   'Traralgon',
+  // 'NPSVol',
+  // 'NPS Score',
+  // 'adv 10-9',
+  // 'Pass 8-7',
+  // `Detr (${target?.detr || 'N/A'})`,
+  // `PPN(6) (${target?.ppn || 'N/A'})`,
+  // `Bundle New(2) (${target?.bundle || 'N/A'})`,
+  // `TMB(5) (${target?.tmb || 'N/A'})`,
+  // 'Upgrade & Protect',
+  // `Tyro(2) (${target?.tyro || 'N/A'})`,
+  // `Website BAS(1) (${target?.websitebas || 'N/A'})`,
+  // `Device Security($10/m)(1) (${target?.devicesecurity || 'N/A'})`,
+  // 'Outright Mobile/Tablet Inc Prepaid',
+  // 'DCP Mobile/Tablet',
+  // 'Smart Watch',
+  // 'Acc GP',
+  // 'Handset/Plan GP',
+  // 'Total GP'
+  // ];
+  
+  // const columns = headerNames.map((header, index) => ({
+  //   id: `column-${index}`,
+  //   label: header,
+  //   minWidth: 120,
+  //   align: 'center',
+  //   format: (value) => value
+  // }));
 
   export default function Dashboard() {
     const [page, setPage] = useState(0);
@@ -50,6 +50,17 @@
     
     const dispatch = useDispatch();
     const { data, loading, error } = useSelector((state) => state.tableData);
+    const { target,  loading: targetLoading, error: targetError } = useSelector((state) => state.targets);
+
+  useEffect(() => {
+    dispatch(getTargetThunk());
+  }, [dispatch]);
+  useEffect(() => {
+    if (target ) {
+      console.log(target);
+      
+    }
+  }, [target]);
     console.log(data)
 
     useEffect(() => {
@@ -127,7 +138,35 @@
         setEditingCell(null);
       }
     };
-
+    const headerNames = [
+      'Traralgon',
+    'NPSVol',
+    'NPS Score',
+    'adv 10-9',
+    'Pass 8-7',
+    `Detr (${target?.detr || 'N/A'})`,
+    `PPN (${target?.ppn || 'N/A'})`,
+    `Bundle New (${target?.bundel || 'N/A'})`,
+    `TMB (${target?.tmb || 'N/A'})`,
+    'Upgrade & Protect',
+    `Tyro (${target?.tyro || 'N/A'})`,
+    `Website BAS (${target?.websitebas || 'N/A'})`,
+    `Device Security($10/m) (${target?.devicesecurity || 'N/A'})`,
+    'Outright Mobile/Tablet Inc Prepaid',
+    'DCP Mobile/Tablet',
+    'Smart Watch',
+    'Acc GP',
+    'Handset/Plan GP',
+    'Total GP'
+    ];
+    
+    const columns = headerNames.map((header, index) => ({
+      id: `column-${index}`,
+      label: header,
+      minWidth: 120,
+      align: 'center',
+      format: (value) => value
+    }));
     const tabs = ['All Stores', 'Traralgon', 'Warragul', 'Torquay'];
 
     // Filter data to show only "Traralgon" sales location
@@ -233,9 +272,9 @@
                             onBlur={() => isEditable && handleBlur(rowIndex, column.id)}
                             style={{
                               border: '1px solid #e0e0e0',
-                              display: column.id === 'column-8' ? 'flex' : 'table-cell',
-                              alignItems: column.id === 'column-8' ? 'center' : 'inherit',
-                              justifyContent: column.id === 'column-8' ? 'center' : 'inherit'
+                              display: column.id === 'column-8'|| column.id === 'column-6' ? 'flex' : 'table-cell',
+                              alignItems: column.id === 'column-8'|| column.id === 'column-6' ? 'center' : 'inherit',
+                              justifyContent: column.id === 'column-8'|| column.id === 'column-6' ? 'center' : 'inherit'
                             }}
                           >
                             {editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === column.id ? (
@@ -246,8 +285,8 @@
                                 autoFocus
                               />
                             ) : (
-                              column.id === 'column-8' ? (
-                                <CircularIndicator value={value} />
+                              column.id === 'column-8'|| column.id === 'column-6' ? (
+                                <CircularIndicator value={value}  target={column.id === 'column-6' ? target?.ppn : target?.tmb} />
                               ) : (
                                 value
                               )

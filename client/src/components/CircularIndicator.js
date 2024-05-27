@@ -1,9 +1,9 @@
 import React from 'react';
 import { Box } from '@mui/material';
 
-const CircularIndicator = ({ value }) => {
-  const color = value < 5 ? 'red' : 'green';
-  const backgroundColor = value < 5 ? 'rgba(255, 0, 0, 0.2)' : 'rgba(0, 128, 0, 0.2)';
+const CircularIndicator = ({ value, target }) => {
+  const color = value < target ? 'red' : 'green';
+  const backgroundColor = value < target ? 'rgba(255, 0, 0, 0.2)' : 'rgba(0, 128, 0, 0.2)';
 
   return (
     <Box
