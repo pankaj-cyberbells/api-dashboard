@@ -139,7 +139,7 @@
       }
     };
     const headerNames = [
-      'Traralgon',
+      selectedTab.value,
     'NPSVol',
     'NPS Score',
     'adv 10-9',
@@ -180,6 +180,7 @@
       'column-3': item.adv109,
       'column-4': item.pass87,
       'column-6':item.pnncount,
+      'column-7':item.bundelnewcount,
       'column-8': item.tmbcount,
       'column-9': item.upgrade,
       'column-14': item.dcpcount,
@@ -267,14 +268,15 @@
                         return (
                           <TableCell
                             key={column.id}
-                            align={column.align}
+                            // align={column.align}
                             onDoubleClick={() => isEditable && handleDoubleClick(rowIndex, column.id)}
                             onBlur={() => isEditable && handleBlur(rowIndex, column.id)}
                             style={{
                               border: '1px solid #e0e0e0',
                               display: column.id === 'column-8'|| column.id === 'column-6' ? 'flex' : 'table-cell',
                               alignItems: column.id === 'column-8'|| column.id === 'column-6' ? 'center' : 'inherit',
-                              justifyContent: column.id === 'column-8'|| column.id === 'column-6' ? 'center' : 'inherit'
+                              justifyContent: column.id === 'column-8'|| column.id === 'column-6' ? 'center' : 'inherit',
+                              textAlign:'center' ,
                             }}
                           >
                             {editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === column.id ? (
@@ -285,8 +287,10 @@
                                 autoFocus
                               />
                             ) : (
-                              column.id === 'column-8'|| column.id === 'column-6' ? (
-                                <CircularIndicator value={value}  target={column.id === 'column-6' ? target?.ppn : target?.tmb} />
+                              column.id === 'column-8'|| column.id === 'column-6' || column.id === 'column-7' ? (
+                                <Box display="flex" justifyContent="center" alignItems="center" width="100%">
+                                <CircularIndicator value={value} target={column.id === 'column-6' ? target?.ppn : column.id === 'column-7' ? target?.bundel : target?.tmb} />
+                              </Box>
                               ) : (
                                 value
                               )

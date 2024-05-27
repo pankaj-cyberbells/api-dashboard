@@ -59,7 +59,7 @@ const SetTargetForm = () => {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        minHeight="100vh"
+        minHeight="90vh"
         flexDirection="column"
         padding="20px"
       >
