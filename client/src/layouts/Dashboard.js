@@ -273,9 +273,9 @@
                             onBlur={() => isEditable && handleBlur(rowIndex, column.id)}
                             style={{
                               border: '1px solid #e0e0e0',
-                              display: column.id === 'column-8'|| column.id === 'column-6' ? 'flex' : 'table-cell',
-                              alignItems: column.id === 'column-8'|| column.id === 'column-6' ? 'center' : 'inherit',
-                              justifyContent: column.id === 'column-8'|| column.id === 'column-6' ? 'center' : 'inherit',
+                              // display: column.id === 'column-8'|| column.id === 'column-6' ? 'flex' : 'table-cell',
+                              // alignItems: column.id === 'column-8'|| column.id === 'column-6' ? 'center' : 'inherit',
+                              // justifyContent: column.id === 'column-8'|| column.id === 'column-6' ? 'center' : 'inherit',
                               textAlign:'center' ,
                             }}
                           >
