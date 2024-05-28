@@ -4,15 +4,179 @@ import { handleGroupByAggregate } from "../utils/crudHelpers/groupByAggregate.js
 import { buildAggregationOperations, formatDate } from "../utils/index.js";
 
 export const getAll = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 15;
-    const result = await handleGetAll(Customer, {}, page, limit);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error" });
-  }
-};
+
+    const { startDate, endDate } = req.query;
+  
+    let dateFilter = {};
+  
+    if (startDate && endDate) {
+      const formattedStartDate = formatDate(startDate);
+      const formattedEndDate = formatDate(endDate);
+      dateFilter = {
+        $expr: {
+          $and: [
+            { $gte: [{ $dateFromString: { dateString: { $concat: [{ $substr: ["$saledate_rep_", 6, 2] }, "-", { $substr: ["$saledate_rep_", 3, 2] }, "-", { $substr: ["$saledate_rep_", 0, 2] }] } } }, new Date(formattedStartDate)] },
+            { $lte: [{ $dateFromString: { dateString: { $concat: [{ $substr: ["$saledate_rep_", 6, 2] }, "-", { $substr: ["$saledate_rep_", 3, 2] }, "-", { $substr: ["$saledate_rep_", 0, 2] }] } } }, new Date(formattedEndDate)] },
+          ]
+        }
+      };
+    }
+  
+    try {
+      const filter = {
+        ...dateFilter,
+      };
+  
+      const salesreps = await Customer.aggregate([
+        {
+          $match: filter,
+        },
+        {
+          $group: {
+            _id: {
+              salesrep: "$salesrep",
+              salelocation: "$salelocation"
+            },
+            pnncount: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      { $eq: ["$carrier", "Telstra Mobile Voice (Consumer)"] },
+                      { $eq: ["$plancat", "MOB-NEW"] },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+            tmbcount: {
+              $sum: {
+                $cond: [
+                  { $eq: ["$carrier", "Telstra Mobile Broadband (Consumer)"] },
+                  1,
+                  0,
+                ],
+              },
+            },
+            outriCount: {
+              $sum: {
+                $cond: [
+                  {
+                    $or: [
+                      { $eq: ["$carrier", "Outright Sale"] },
+                      { $eq: ["$carrier", "Telstra PrePaid"] },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+            bundelnewcount: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      { $eq: ["$carrier", "Telstra Bundle (Consumer)"] },
+                      { $eq: ["$plancat", "BUNDLE-NEW"] },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+            upgrade: {
+              $sum: {
+                $cond: [
+                  { $eq: ["$plantype", "Telstra Upgrade and Protect"] },
+                  1,
+                  0,
+                ],
+              },
+            },
+            dcpcount: {
+              $sum: {
+                $cond: [
+                  { $eq: ["$carrier", "Telstra Repayment (Devices)"] },
+                  1,
+                  0,
+                ],
+              },
+            },
+            gpvalue: {
+              $sum: {
+                $add: [
+                  "$commission",
+                  "$rebate",
+                  "$bonus1",
+                  "$bonus2",
+                  "$adddedamt1",
+                  "$adddedamt2",
+                  "$adddedamt3",
+                ],
+              },
+            },
+            dates: {
+              $addToSet: "$saledate_rep_" // Use $addToSet instead of $push to omit repetitive dates
+            },
+          },
+        },
+        {
+          $addFields: {
+            sortedDates: {
+              $map: {
+                input: "$dates",
+                as: "date",
+                in: {
+                  $dateFromString: {
+                    dateString: {
+                      $concat: [
+                        { $substr: ["$$date", 6, 2] },
+                        "-",
+                        { $substr: ["$$date", 3, 2] },
+                        "-",
+                        { $substr: ["$$date", 0, 2] }
+                      ]
+                    },
+                    format: "%Y-%m-%d"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            salesrep: "$_id.salesrep",
+            salelocation: "$_id.salelocation",
+            pnncount: 1,
+            tmbcount: 1,
+            outriCount: 1,
+            bundelnewcount: 1,
+            upgrade: 1,
+            dcpcount: 1,
+            gpvalue: 1,
+            sortedDates: 1,
+          },
+        },
+        {
+          $sort: {
+            salelocation: 1, 
+            salesrep: 1 
+          },
+        },
+      ]);
+  
+      res.status(200).json(salesreps);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+  
 
 export const getCustomer = async (req, res) => {
   try {
