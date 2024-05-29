@@ -5,7 +5,7 @@
   } from '@mui/material';
   import Navbar from '../components/Navbar';
   import { useDispatch, useSelector } from 'react-redux';
-  import { loadData } from '../features/tableDataSlice';
+  import { loadData,AllStore } from '../features/tableDataSlice';
   import DateInputs from '../components/DateInputs';
   import CircularIndicator from '../components/CircularIndicator';
   import { getTargetThunk } from '../features/targetSlice';
@@ -51,7 +51,7 @@
     const dispatch = useDispatch();
     const { data, loading, error } = useSelector((state) => state.tableData);
     const { target,  loading: targetLoading, error: targetError } = useSelector((state) => state.targets);
-
+   
   useEffect(() => {
     dispatch(getTargetThunk());
   }, [dispatch]);
@@ -81,11 +81,39 @@
       return `${day}/${month}/${year}`;
     };
 
+    const fetchDataForTab = (tabValue, startDate, endDate) => {
+      if (tabValue === 'All Stores') {
+        dispatch(AllStore({ startDate, endDate }));
+      } else {
+        dispatch(loadData({ salelocation: tabValue, startDate, endDate }));
+      }
+    };
+  
+    const handleTabChange = (event, newValue) => {
+      const selectedTabValue = tabs[newValue];
+      setSelectedTab({ index: newValue, value: selectedTabValue });
+      const today = new Date();
+      const thirtyDaysAgo = new Date(today);
+      thirtyDaysAgo.setDate(today.getDate() - 90);
+      const formattedFromDate = formatDate(thirtyDaysAgo);
+      const formattedToDate = formatDate(today);
+      setFromDate(formattedFromDate);
+      setToDate(formattedToDate);
+      fetchDataForTab(selectedTabValue, formattedFromDate, formattedToDate);
+    };
+  
     const fetchData = () => {
       const startDate = fromDate.split('-').reverse().join('/');
       const endDate = toDate.split('-').reverse().join('/');
-      dispatch(loadData({ salelocation:  selectedTab.value,startDate, endDate }));
+      fetchDataForTab(selectedTab.value, startDate, endDate);
     };
+  
+
+    // const fetchData = () => {
+    //   const startDate = fromDate.split('-').reverse().join('/');
+    //   const endDate = toDate.split('-').reverse().join('/');
+    //   dispatch(loadData({ salelocation:  selectedTab.value,startDate, endDate }));
+    // };
     // useEffect(() => {
     //   const startDate = '01/02/24'; // replace with dynamic date from your component state
     //   const endDate = '16/05/24'; 
@@ -113,10 +141,10 @@
       setPage(0);
     };
 
-    const handleTabChange = (event, newValue) => {
-      const selectedTabValue = tabs[newValue];
-      setSelectedTab({ index: newValue, value: selectedTabValue });
-    };
+    // const handleTabChange = (event, newValue) => {
+    //   const selectedTabValue = tabs[newValue];
+    //   setSelectedTab({ index: newValue, value: selectedTabValue });
+    // };
 
     const handleDoubleClick = (rowIndex, columnId) => {
       setEditingCell({ rowIndex, columnId });
@@ -138,6 +166,7 @@
         setEditingCell(null);
       }
     };
+   
     const headerNames = [
       selectedTab.value,
     'NPSVol',
@@ -175,19 +204,31 @@
     // Map filtered data to match the table structure
     const rows = data.map(item => ({
       'column-0': item.salesrep,
-      'column-1': item.npsVol,
-      'column-2': item.npsScore,
-      'column-3': item.adv109,
-      'column-4': item.pass87,
+      // 'column-1': item.npsVol,
+      // 'column-2': item.npsScore,
+      // 'column-3': item.adv109,
+      // 'column-4': item.pass87,
       'column-6':item.pnncount,
       'column-7':item.bundelnewcount,
       'column-8': item.tmbcount,
       'column-9': item.upgrade,
       'column-14': item.dcpcount,
       'column-17': item.gpvalue,
-      'column-5': item.tbm // Make sure this matches the data structure
+      // 'column-5': item.tbm // Make sure this matches the data structure
     }));
-
+    console.log({mutableData})
+    const calculateTotals = () => {
+      const totals = columns.map((column, colIndex) => {
+        if (colIndex === 0) return 'Total'; // Label for the first column
+        const total = rows.reduce((sum, row) => sum + (parseFloat(row[column.id]) || 0), 0);
+        return total.toFixed(2); // Format the total to 2 decimal places
+      });
+      return totals;
+    };
+   
+  
+    const totals = calculateTotals();
+    console.log({totals})
     return (
       <>
         <Navbar />
@@ -233,7 +274,7 @@
             />
           </Box>
           
-          <TableContainer sx={{ maxHeight: 480, borderRadius: '0 0 8px 8px', border: '2px solid #e0e0e0', borderTop: 'none' }}>
+          <TableContainer sx={{ maxHeight: 680, borderRadius: '0 0 8px 8px', border: '2px solid #e0e0e0', borderTop: 'none' }}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
@@ -300,6 +341,23 @@
                       })}
                     </TableRow>
                   ))}
+                   <TableRow>
+                {totals.map((total, index) => (
+                  <TableCell
+                    key={index}
+                    align="center"
+                    style={{
+                      position: 'sticky',
+                      bottom: 0,
+                      backgroundColor: 'lightgrey',
+                      fontWeight: 'bold',
+                      borderTop: '1px solid black'
+                    }}
+                  >
+                    {total}
+                  </TableCell>
+                ))}
+              </TableRow>
               </TableBody>
             </Table>
           </TableContainer>

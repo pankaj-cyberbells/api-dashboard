@@ -15,6 +15,19 @@ export const fetchData = async (salelocation,startDate, endDate) => {
     throw error;
   }
 };
+export const AllStoreData = async (startDate, endDate) => {
+  try {
+    const response = await apiClient.get(API_ROUTES.GET_ALL, {
+      params: {
+        startDate,
+        endDate,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 
 export const getTarget = async () => {
