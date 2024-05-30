@@ -1,7 +1,7 @@
   import React, { useState, useEffect } from 'react';
   import {
     Paper, Table, TableBody, TableCell, TableContainer, TableHead,
-    TablePagination, TableRow, Tabs, Tab, Box, TextField
+    TablePagination, TableRow, Tabs, Tab, Box, TextField,CircularProgress
   } from '@mui/material';
   import Navbar from '../components/Navbar';
   import { useDispatch, useSelector } from 'react-redux';
@@ -9,6 +9,7 @@
   import DateInputs from '../components/DateInputs';
   import CircularIndicator from '../components/CircularIndicator';
   import { getTargetThunk } from '../features/targetSlice';
+import FortnightDropdown from '../components/FortnightDropdown';
   // const headerNames = [
   //   'Traralgon',
   // 'NPSVol',
@@ -47,6 +48,7 @@
     const [mutableData, setMutableData] = useState([]); // To hold a mutable copy of data
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
+    const [selectedFortnight, setSelectedFortnight] = useState(null);
     
     const dispatch = useDispatch();
     const { data, loading, error } = useSelector((state) => state.tableData);
@@ -55,12 +57,7 @@
   useEffect(() => {
     dispatch(getTargetThunk());
   }, [dispatch]);
-  useEffect(() => {
-    if (target ) {
-      console.log(target);
-      
-    }
-  }, [target]);
+  
     console.log(data)
 
     useEffect(() => {
@@ -72,7 +69,7 @@
       setFromDate(formattedFromDate);
       setToDate(formattedToDate);
       dispatch(loadData({salelocation:  selectedTab.value,  startDate: formattedFromDate, endDate: formattedToDate }));
-    }, [dispatch,,selectedTab]);
+    }, [dispatch]);
 
     const formatDate = (date) => {
       const day = String(date.getDate()).padStart(2, '0');
@@ -83,13 +80,17 @@
 
     const fetchDataForTab = (tabValue, startDate, endDate) => {
       if (tabValue === 'All Stores') {
+        console.log("pressed A")
         dispatch(AllStore({ startDate, endDate }));
       } else {
+        console.log("pressed O")
         dispatch(loadData({ salelocation: tabValue, startDate, endDate }));
       }
     };
   
     const handleTabChange = (event, newValue) => {
+      console.log("pressed")
+      setSelectedFortnight(null);
       const selectedTabValue = tabs[newValue];
       setSelectedTab({ index: newValue, value: selectedTabValue });
       const today = new Date();
@@ -129,8 +130,8 @@
       setMutableData(data.map(item => ({ ...item }))); // Create a mutable copy of data
     }, [data]);
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>Error: {error}</p>;
+    // if (loading) return <p>Loading...</p>;
+    // if (error) return <p>Error: {error}</p>;
 
     const handleChangePage = (event, newPage) => {
       setPage(newPage);
@@ -173,7 +174,8 @@
     'NPS Score',
     'adv 10-9',
     'Pass 8-7',
-    `Detr (${target?.detr || 'N/A'})`,
+    'Detr<6',
+    // `Detr (${target?.detr || 'N/A'})`,
     `PPN (${target?.ppn || 'N/A'})`,
     `Bundle New (${target?.bundel || 'N/A'})`,
     `TMB (${target?.tmb || 'N/A'})`,
@@ -212,11 +214,12 @@
       'column-7':item.bundelnewcount,
       'column-8': item.tmbcount,
       'column-9': item.upgrade,
+      'column-13': item.outriCount,
       'column-14': item.dcpcount,
       'column-17': item.gpvalue,
       // 'column-5': item.tbm // Make sure this matches the data structure
     }));
-    console.log({mutableData})
+   
     const calculateTotals = () => {
       const totals = columns.map((column, colIndex) => {
         if (colIndex === 0) return 'Total'; // Label for the first column
@@ -228,7 +231,7 @@
    
   
     const totals = calculateTotals();
-    console.log({totals})
+  
     return (
       <>
         <Navbar />
@@ -263,8 +266,12 @@
               marginRight: '2px', paddingY:'25.5px'}} />
               ))}
             </Tabs>
-            {/* <DateInputs  />
-            */}
+            <FortnightDropdown
+        selectedFortnight={selectedFortnight}
+        setSelectedFortnight={setSelectedFortnight}
+        setFromDate={setFromDate}
+        setToDate={setToDate}
+      />
             <DateInputs
               fromDate={fromDate}
               toDate={toDate}
@@ -299,13 +306,15 @@
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows
+                {loading ? (
+  <CircularProgress /> // Show loading indicator when data is loading
+) : (rows
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, rowIndex) => (
                     <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex}>
                       {columns.map((column, colIndex) => {
                         const value = row[column.id];
-                        const isEditable = colIndex >= 1 && colIndex <= 4; // Make columns 2, 3, 4, 5 editable
+                        const isEditable = colIndex >= 1 && colIndex <= 5; // Make columns 2, 3, 4, 5 editable
                         return (
                           <TableCell
                             key={column.id}
@@ -340,7 +349,7 @@
                         );
                       })}
                     </TableRow>
-                  ))}
+                  )))}
                    <TableRow>
                 {totals.map((total, index) => (
                   <TableCell

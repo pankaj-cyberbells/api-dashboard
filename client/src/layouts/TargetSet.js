@@ -4,6 +4,8 @@ import { Box, Button, TextField, Typography,CircularProgress } from '@mui/materi
 import Navbar from '../components/Navbar';
 import './SetTargetForm.css'; // Import your CSS file for additional styling
 import { getTargetThunk, updateTargetThunk} from '../features/targetSlice';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SetTargetForm = () => {
   const [detrTarget, setDetrTarget] = useState('');
@@ -38,23 +40,48 @@ const SetTargetForm = () => {
     }
   }, [target]);
 
-  const handleUpdateTarget = (event) => {
-    event.preventDefault(); 
-    dispatch(updateTargetThunk({ targetId: target._id, targetData: {
-        detr: detrTarget,
+//   const handleUpdateTarget = (event) => {
+//     event.preventDefault(); 
+//     dispatch(updateTargetThunk({ targetId: target._id, targetData: {
+//         // detr: detrTarget,
+//         detr: 6,
+//         bundel: bundleTmbTarget,
+//         ppn: ppnTarget,
+//         tmb: tmbTarget,
+//         tyro: tyroTarget,
+//         websitebas: websiteBasTarget,
+//         devicesecurity: deviceSecurityTarget,
+//       } }));
+//     // Repeat the above line for other target fields if needed
+//   };
+
+const handleUpdateTarget = async (event) => {
+    event.preventDefault();
+    const result = await dispatch(updateTargetThunk({
+      targetId: target._id,
+      targetData: {
+        // detr: detrTarget,
+        detr: 6,
         bundel: bundleTmbTarget,
         ppn: ppnTarget,
         tmb: tmbTarget,
         tyro: tyroTarget,
         websitebas: websiteBasTarget,
         devicesecurity: deviceSecurityTarget,
-      } }));
-    // Repeat the above line for other target fields if needed
+      }
+    }));
+    console.log(result.meta)
+
+    if (result.meta.requestStatus === 'fulfilled') {
+      toast.success('Target set successfully!');
+    } else {
+      toast.error('Failed to set target. Please try again.');
+    }
   };
   return (
     <>
       <Navbar />
-    
+      <ToastContainer />
       <Box
         display="flex"
         justifyContent="center"
@@ -76,7 +103,7 @@ const SetTargetForm = () => {
           </Typography>
         ) : (
           <form className="form-container" onSubmit={handleUpdateTarget}>
-            <TextField
+            {/* <TextField
               label="DETR Target"
               type="number"
               value={detrTarget}
@@ -84,7 +111,7 @@ const SetTargetForm = () => {
               variant="outlined"
               fullWidth
               margin="normal"
-            />
+            /> */}
             <TextField
               label="Bundle New Target"
               type="number"
