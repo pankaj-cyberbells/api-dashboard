@@ -4,6 +4,7 @@ export const handleCreate = async (Model, find, creatableData) => {
     if (existingData) {
       throw new Error('matched'); 
     }
+    return;
   }
   const newData = new Model(creatableData);
   const savedData = await newData.save();

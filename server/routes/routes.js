@@ -2,6 +2,7 @@ import express from "express";
 import middleware from "../verifyAcessToken.js";
 import { getAll, getByGroupByAggregate, getBySearchQuery, getCustomer, getDataByStore, getSalesRepByStore, getTmbByQuery } from "../controller/customer.js";
 import { createTarget, deleteTarget, getTargets, updateTarget } from "../controller/target.js";
+import { createAdmin } from "../controller/admin.js";
 
 const router= express.Router();
 // authentication routes ====================>
@@ -10,6 +11,11 @@ const router= express.Router();
   
   
   
+// admin routes ====================>  
+  router.post( "/admin", createAdmin); 
+// endpoint will look like ----------> post "http://localhost:5000/api/admin" -------> pass data like this {name:"", email:"", password:""}
+
+
 // customer dynamic data routes ====================>
 router.get( "/get/:id", getCustomer);
 router.get( "/get-all",  getAll);
