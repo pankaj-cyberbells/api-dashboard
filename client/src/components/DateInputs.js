@@ -16,9 +16,9 @@ const DateInputs = ({ fromDate, toDate, setFromDate, setToDate, fetchData }) => 
     setFromDate(event.target.value);
   };
 
-  useEffect(()=>{
+
 console.log({ fromDate, toDate})
-  },[])
+
 
   const handleToDateChange = (event) => {
     setToDate(event.target.value);
