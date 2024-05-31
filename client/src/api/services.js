@@ -60,3 +60,33 @@ export const deleteTarget = async (targetId) => {
     throw error;
   }
 };
+
+// Create Admin Service
+export const createAdmin = async (adminData) => {
+  try {
+    const response = await apiClient.post(API_ROUTES.CREATE_ADMIN, adminData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAllAdmins = async () => {
+  try {
+    const response = await apiClient.get(API_ROUTES.ALL_ADMIN);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to get all admins:', error);
+    throw error;
+  }
+};
+// In your services file
+export const deleteAdmin = async (adminId) => {
+  try {
+    const response = await apiClient.delete(`${API_ROUTES.CREATE_ADMIN}/${adminId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
