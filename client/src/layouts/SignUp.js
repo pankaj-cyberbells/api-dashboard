@@ -130,6 +130,7 @@ const SignUp = () => {
                 onChange={handleChange}
                 error={!!formErrors.name}
                 helperText={formErrors.name}
+                sx={{ marginBottom: 2 }}
               />
               <TextField
                 name="email"
@@ -141,6 +142,7 @@ const SignUp = () => {
                 onChange={handleChange}
                 error={!!formErrors.email}
                 helperText={formErrors.email}
+                sx={{ marginBottom: 2 }}
               />
               <TextField
                 name="password"
@@ -152,6 +154,7 @@ const SignUp = () => {
                 onChange={handleChange}
                 error={!!formErrors.password}
                 helperText={formErrors.password}
+                sx={{ marginBottom: 2 }}
               />
               <Button
                 variant="contained"
@@ -195,7 +198,7 @@ const SignUp = () => {
                     <td style={{ borderBottom: '1px solid #ddd', padding: '8px', textAlign: 'center' }}> {user.name}</td>
                     <td style={{ borderBottom: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>{user.email}</td>
                     <td style={{ borderBottom: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>{new Date(user.createdAt).toLocaleDateString()}</td>
-                    <td style={{ borderBottom: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
+                    <td style={{ borderBottom: '1px solid #ddd', padding: '8px', textAlign: 'center' }} >
                       <Button
                         variant="outlined"
                         color="secondary"
