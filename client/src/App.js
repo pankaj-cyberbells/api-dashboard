@@ -5,7 +5,7 @@ import Login from './layouts/Login';
 import { useSelector } from 'react-redux';
 import SignUp from './layouts/SignUp';
 import SetTargetForm from './layouts/TargetSet';
-import FortnightDashboard from './layouts/FortNightDashboard';
+// import FortnightDashboard from './layouts/FortNightDashboard';
 import { isAuthenticated } from './api/services';
 function App() {
   const token = useSelector((state) => state.auth.token);
