@@ -16,10 +16,10 @@ function App() {
     <Router>
       <div>
         <Routes>
-        <Route path="/dashboard" element={isAuthenticated() ? <Dashboard /> : <Navigate to="/login" />} />
-          <Route path="/login" element={isAuthenticated() ? <Navigate to="/dashboard" /> : <Login />} />
-          <Route path="/signup" element={isAuthenticated() ? <SignUp /> : <Navigate to="/login" />} />
-          <Route path="/settarget" element={isAuthenticated() ? <SetTargetForm/> : <Navigate to="/login" />} />
+        <Route path="/dashboard" element={isAuthenticated() ? <Dashboard /> : <Navigate to="/" />} />
+          {/* <Route path="/login" element={isAuthenticated() ? <Navigate to="/dashboard" /> : <Login />} /> */}
+          <Route path="/signup" element={isAuthenticated() ? <SignUp /> : <Navigate to="/" />} />
+          <Route path="/settarget" element={isAuthenticated() ? <SetTargetForm/> : <Navigate to="/" />} />
           <Route path="/" element={isAuthenticated() ? <Navigate to="/dashboard" /> : <Login />} />
           {/* <Route path="/" element={<FortnightDashboard />} />  */}
         </Routes>

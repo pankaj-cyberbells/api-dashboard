@@ -64,10 +64,12 @@ useEffect(() => {
     const today = new Date();
     const thirtyDaysAgo = new Date(today);
     thirtyDaysAgo.setDate(today.getDate() - 90);
+    const formattedforFromDate =formatforDate(thirtyDaysAgo)
+    const formattedforTomDate =formatforDate(today)
     const formattedFromDate = formatDate(thirtyDaysAgo);
     const formattedToDate = formatDate(today);
-    setFromDate(formattedFromDate);
-    setToDate(formattedToDate);
+    setFromDate(formattedforFromDate);
+    setToDate(formattedforTomDate);
     dispatch(loadData({salelocation:  selectedTab.value,  startDate: formattedFromDate, endDate: formattedToDate }));
   }, [dispatch]);
 
@@ -77,6 +79,12 @@ useEffect(() => {
     const year = String(date.getFullYear()).slice(2); // Get last 2 digits of the year
     return `${day}/${month}/${year}`;
   };
+  const formatforDate = (date) => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()); // Get full year
+    return `${year}-${month}-${day}`;
+};
 
   const fetchDataForTab = (tabValue, startDate, endDate) => {
     if (tabValue === 'All Stores') {
@@ -96,10 +104,12 @@ useEffect(() => {
     const today = new Date();
     const thirtyDaysAgo = new Date(today);
     thirtyDaysAgo.setDate(today.getDate() - 90);
+    const formattedforFromDate =formatforDate(thirtyDaysAgo)
+    const formattedforTomDate =formatforDate(today)
     const formattedFromDate = formatDate(thirtyDaysAgo);
     const formattedToDate = formatDate(today);
-    setFromDate(formattedFromDate);
-    setToDate(formattedToDate);
+    setFromDate(formattedforFromDate);
+    setToDate(formattedforTomDate);
     fetchDataForTab(selectedTabValue, formattedFromDate, formattedToDate);
   };
 
