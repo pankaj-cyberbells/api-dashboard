@@ -8,6 +8,8 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from '../features/authSlice';
 
 // Image URL
 const bgImage = "https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg";
@@ -44,29 +46,43 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  // const { token, status, error: loginError } = useSelector((state) => state.auth);
 
-  useEffect(() => {
-    // Set static email and password if not already set
-    if (!localStorage.getItem("email")) {
-      localStorage.setItem("email", "example@example.com");
-    }
-    if (!localStorage.getItem("password")) {
-      localStorage.setItem("password", "password123");
-    }
-  }, []);
+  // useEffect(() => {
+  //   // Set static email and password if not already set
+  //   if (!localStorage.getItem("email")) {
+  //     localStorage.setItem("email", "example@example.com");
+  //   }
+  //   if (!localStorage.getItem("password")) {
+  //     localStorage.setItem("password", "password123");
+  //   }
+  // }, []);
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
-  const handleLogin = () => {
-    const storedEmail = localStorage.getItem("email");
-    const storedPassword = localStorage.getItem("password");
-
-    if (email === storedEmail && password === storedPassword) {
-      navigate("/dashboard");
-    } else {
-      setError("Invalid email or password. Please try again.");
+  const handleLogin = async () => {
+    try {
+      const resultAction = await dispatch(loginUser({  email, password }));
+      if (loginUser.fulfilled.match(resultAction)) {
+        navigate("/dashboard");
+      } else {
+        setError("Invalid email or password. Please try again.");
+      }
+    } catch (err) {
+      setError("An error occurred during login. Please try again.");
     }
   };
+  // const handleLogin = () => {
+  //   const storedEmail = localStorage.getItem("email");
+  //   const storedPassword = localStorage.getItem("password");
+
+  //   if (email === storedEmail && password === storedPassword) {
+  //     navigate("/dashboard");
+  //   } else {
+  //     setError("Invalid email or password. Please try again.");
+  //   }
+  // };
 
   return (
     <FullScreenBox>
@@ -124,14 +140,14 @@ const Login = () => {
               Sign In
             </Button>
           </StyledBox>
-          <StyledBox mt={3} textAlign="center">
+          {/* <StyledBox mt={3} textAlign="center">
             <Typography variant="button" color="textSecondary">
               Don't have an account?{" "}
               <Link to="/signup" style={{ color: '#1976d2', fontWeight: 'medium' }}>
                 Sign up
               </Link>
             </Typography>
-          </StyledBox>
+          </StyledBox> */}
         </StyledBox>
       </StyledPaper>
     </FullScreenBox>

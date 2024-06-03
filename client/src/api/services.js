@@ -90,3 +90,33 @@ export const deleteAdmin = async (adminId) => {
   }
 };
 
+
+
+
+export const login = async (email, password) => {
+  try {
+    const response = await apiClient.post(API_ROUTES.LOGIN, { email, password });
+    if (response) {
+      console.log(response)
+      localStorage.setItem('token', response.data.token);
+    }
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};
+
+export const logout = () => {
+  localStorage.removeItem('token');
+};
+
+export const getToken = () => {
+  return localStorage.getItem('token');
+};
+
+export const isAuthenticated = () => {
+  const token = getToken();
+  // Implement token validation logic if needed
+  return token ? true : false;
+};
+
