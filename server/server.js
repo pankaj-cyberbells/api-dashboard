@@ -24,8 +24,9 @@ app.get("/", (req,res)=>{
   res.send("<h1>hello from express server </h1>")
 });
 
+// fetchAndStoreData()
 // Schedule the task to run every morning at 8 AM
-cron.schedule('0 8 * * *', fetchAndStoreData);
+// cron.schedule('0 8 * * *', fetchAndStoreData);
 
 app.use("/api", routes);
 

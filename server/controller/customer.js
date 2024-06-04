@@ -42,8 +42,8 @@ export const getAll = async (req, res) => {
                 $cond: [
                   {
                     $and: [
-                      { $eq: ["$carrier", "Telstra Mobile Voice (Consumer)"] },
-                      { $eq: ["$plancat", "MOB-NEW"] },
+                      { $regexMatch: { input: { $toLower: "$carrier" }, regex: "^telstra mobile voice", options: "i" } },
+                      { $eq: [{ $toLower: "$plancat" }, "mob-new"] },
                     ],
                   },
                   1,
@@ -54,19 +54,26 @@ export const getAll = async (req, res) => {
             tmbcount: {
               $sum: {
                 $cond: [
-                  { $eq: ["$carrier", "Telstra Mobile Broadband (Consumer)"] },
+                  { 
+                    $regexMatch: { 
+                      input: { $toLower: "$carrier" }, 
+                      regex: "^telstra mobile broadband", 
+                      options: "i" 
+                    } 
+                  },
                   1,
                   0,
                 ],
               },
             },
+            
             outriCount: {
               $sum: {
                 $cond: [
                   {
                     $or: [
-                      { $eq: ["$carrier", "Outright Sale"] },
-                      { $eq: ["$carrier", "Telstra PrePaid"] },
+                      { $regexMatch: { input: { $toLower: "$carrier" }, regex: "^outright", options: "i" } },
+                      { $regexMatch: { input: { $toLower: "$carrier" }, regex: "^telstra prepaid", options: "i" } }
                     ],
                   },
                   1,
@@ -79,8 +86,8 @@ export const getAll = async (req, res) => {
                 $cond: [
                   {
                     $and: [
-                      { $eq: ["$carrier", "Telstra Bundle (Consumer)"] },
-                      { $eq: ["$plancat", "BUNDLE-NEW"] },
+                      { $regexMatch: { input: { $toLower: "$carrier" }, regex: "^telstra bundle", options: "i" } },
+                      { $eq: [{ $toLower: "$plancat" }, "bundle-new"] },
                     ],
                   },
                   1,
@@ -91,16 +98,21 @@ export const getAll = async (req, res) => {
             upgrade: {
               $sum: {
                 $cond: [
-                  { $eq: ["$plantype", "Telstra Upgrade and Protect"] },
+                  {
+                    $eq: [
+                      { $toLower: "$planname" },
+                      "telstra upgrade and protect"
+                    ]
+                  },
                   1,
-                  0,
-                ],
-              },
+                  0
+                ]
+              }
             },
             dcpcount: {
               $sum: {
                 $cond: [
-                  { $eq: ["$carrier", "Telstra Repayment (Devices)"] },
+                  { $eq: [{ $toLower: "$carrier" }, "telstra repayment (devices)"] },
                   1,
                   0,
                 ],
@@ -120,7 +132,7 @@ export const getAll = async (req, res) => {
               },
             },
             dates: {
-              $addToSet: "$saledate_rep_" // Use $addToSet instead of $push to omit repetitive dates
+              $addToSet: "$saledate_rep_"
             },
           },
         },
