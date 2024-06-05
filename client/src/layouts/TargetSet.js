@@ -1,6 +1,6 @@
 import React, { useState ,useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Button, TextField, Typography,CircularProgress } from '@mui/material';
+import { Box, Button, TextField, Typography,CircularProgress,FormControl, Select, MenuItem, InputLabel } from '@mui/material';
 import Navbar from '../components/Navbar';
 import './SetTargetForm.css'; // Import your CSS file for additional styling
 import { getTargetThunk, updateTargetThunk} from '../features/targetSlice';
@@ -15,13 +15,13 @@ const SetTargetForm = () => {
   const [tyroTarget, setTyroTarget] = useState('');
   const [websiteBasTarget, setWebsiteBasTarget] = useState('');
   const [deviceSecurityTarget, setDeviceSecurityTarget] = useState('');
-
+  const [selectedLocation, setSelectedLocation] = useState('TRARALGON');
   const dispatch = useDispatch();
   const { target, loading, error } = useSelector((state) => state.targets);
 
   useEffect(() => {
-    dispatch(getTargetThunk());
-  }, [dispatch]);
+    dispatch(getTargetThunk(selectedLocation));
+  }, [dispatch,selectedLocation]);
   useEffect(() => {
     if (target ) {
       console.log(target);
@@ -60,7 +60,7 @@ const handleUpdateTarget = async (event) => {
     const result = await dispatch(updateTargetThunk({
       targetId: target._id,
       targetData: {
-        // detr: detrTarget,
+         salelocation: selectedLocation,
         detr: 6,
         bundel: bundleTmbTarget,
         ppn: ppnTarget,
@@ -103,6 +103,19 @@ const handleUpdateTarget = async (event) => {
           </Typography>
         ) : (
           <form className="form-container" onSubmit={handleUpdateTarget}>
+            <FormControl variant="outlined" fullWidth margin="normal">
+              <InputLabel>Select Location</InputLabel>
+              <Select
+                value={selectedLocation}
+                onChange={(e) => setSelectedLocation(e.target.value)}
+                label="Select Location"
+              >
+                <MenuItem value="all-store">All Stores</MenuItem>
+                <MenuItem value="TRARALGON">TRARALGON</MenuItem>
+                <MenuItem value="WARRAGUL">WARRAGUL</MenuItem>
+                <MenuItem value="TORQUAY">TORQUAY</MenuItem>
+              </Select>
+            </FormControl>
             {/* <TextField
               label="DETR Target"
               type="number"
