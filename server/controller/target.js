@@ -64,7 +64,7 @@ export const deleteTarget = async (req, res) => {
 
 export const getTarget = async (req, res) => {
   try {
-    const storedtarget = await Target.findOne({ salelocation: { $regex: new RegExp(req.body.salelocation, 'i') } });
+    const storedtarget = await Target.findOne({ salelocation: { $regex: new RegExp(req.params.salelocation, 'i') } });
   
     return res.status(200).json({ target: storedtarget });
   } catch (error) {
