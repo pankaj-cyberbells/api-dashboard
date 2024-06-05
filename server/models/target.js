@@ -1,6 +1,10 @@
 import mongoose from 'mongoose';
 
 const targetSchema = mongoose.Schema({
+  salelocation:{
+    type:String,
+    required:true
+  },
   detr: {
     type: Number,
   },

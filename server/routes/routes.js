@@ -1,7 +1,7 @@
 import express from "express";
 import middleware from "../verifyAcessToken.js";
 import { getAll, getByGroupByAggregate, getBySearchQuery, getCustomer, getDataByStore, getSalesRepByStore, getTmbByQuery } from "../controller/customer.js";
-import { createTarget, deleteTarget, getTargets, updateTarget } from "../controller/target.js";
+import { createTarget, deleteTarget, getTargets, updateAllTarget, updateTarget } from "../controller/target.js";
 import {createAdmin, deleteAdmin, getAllAdmins, login} from "../controller/admin.js";
 
 const router= express.Router();
@@ -36,8 +36,10 @@ router.get( "/data-by-store",  getDataByStore);
 // target data routes ====================>
   
   router.get( "/target", getTargets); 
-  router.post( "/target", createTarget); 
+  router.post( "/target", createTarget); //=========> request.body should looks like this -----> {  "salelocation":"Warragul","detr": 5,"ppn":3,"bundel":10,"tmb":12,"tyro":5,"websitebas": 5,"devicesecurity": 7}
   router.patch( "/target/:id", updateTarget); 
+  router.put( "/target/all", updateAllTarget); //========> don't send "salelocation" in request.body just send value need to be updated like this -----> { "detr": 5,"ppn":3,"bundel":10,"tmb":12,"tyro":5,"websitebas": 5,"devicesecurity": 7}
+
   router.delete( "/target/:id", deleteTarget); 
   
   

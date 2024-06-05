@@ -33,36 +33,34 @@ export const getAll = async (req, res) => {
         },
         {
           $group: {
-            _id: {
-              salesrep: "$salesrep",
-              salelocation: "$salelocation"
-            },
+            _id: "$salesrep",
+            salelocation: { $first: "$salelocation" },
             pnncount: {
               $sum: {
                 $cond: [
                   {
                     $and: [
-                      { $regexMatch: { input: { $toLower: "$carrier" }, regex: "^telstra mobile voice", options: "i" } },
-                      { $eq: [{ $toLower: "$plancat" }, "mob-new"] },
-                    ],
+                      { $regexMatch: { input: "$carrier", regex: "^Telstra Mobile Voice*", options: "i" } },
+                      { $regexMatch: { input: "$plancat", regex: "^mob-new$", options: "i" } },
+                     
+                    ]
                   },
                   1,
-                  0,
-                ],
-              },
+                  0
+                ]
+              }
             },
             tmbcount: {
               $sum: {
                 $cond: [
-                  { 
-                    $regexMatch: { 
-                      input: { $toLower: "$carrier" }, 
-                      regex: "^telstra mobile broadband", 
-                      options: "i" 
-                    } 
+                  {
+                    $and: [
+                      { $regexMatch: { input: "$carrier", regex: "^Telstra Mobile Broadband*", options: "i" } }
+                     
+                    ]
                   },
                   1,
-                  0,
+                  0
                 ],
               },
             },
@@ -72,8 +70,10 @@ export const getAll = async (req, res) => {
                 $cond: [
                   {
                     $or: [
-                      { $regexMatch: { input: { $toLower: "$carrier" }, regex: "^outright", options: "i" } },
-                      { $regexMatch: { input: { $toLower: "$carrier" }, regex: "^telstra prepaid", options: "i" } }
+                      { $regexMatch: { input: "$carrier", regex: "^Outright*", options: "i" } },
+                      
+                      { $eq: ["$carrier", "Telstra PrePaid"] },
+                     
                     ],
                   },
                   1,
@@ -86,8 +86,8 @@ export const getAll = async (req, res) => {
                 $cond: [
                   {
                     $and: [
-                      { $regexMatch: { input: { $toLower: "$carrier" }, regex: "^telstra bundle", options: "i" } },
-                      { $eq: [{ $toLower: "$plancat" }, "bundle-new"] },
+                      { $regexMatch: { input: "$carrier", regex: "^Telstra Bundle*", options: "i" } },
+                      { $eq: ["$plancat", "BUNDLE-NEW"] },
                     ],
                   },
                   1,
@@ -98,21 +98,16 @@ export const getAll = async (req, res) => {
             upgrade: {
               $sum: {
                 $cond: [
-                  {
-                    $eq: [
-                      { $toLower: "$planname" },
-                      "telstra upgrade and protect"
-                    ]
-                  },
+                  { $eq: ["$plantype", "Telstra Upgrade and Protect"] },
                   1,
-                  0
-                ]
-              }
+                  0,
+                ],
+              },
             },
             dcpcount: {
               $sum: {
                 $cond: [
-                  { $eq: [{ $toLower: "$carrier" }, "telstra repayment (devices)"] },
+                  { $eq: ["$carrier", "Telstra Repayment (Devices)"] },
                   1,
                   0,
                 ],
@@ -132,8 +127,9 @@ export const getAll = async (req, res) => {
               },
             },
             dates: {
-              $addToSet: "$saledate_rep_"
+              $addToSet: "$saledate_rep_" // Use $addToSet instead of $push to omit repetitive dates
             },
+            
           },
         },
         {
@@ -159,12 +155,14 @@ export const getAll = async (req, res) => {
               }
             }
           }
+          
         },
         {
           $project: {
             _id: 0,
-            salesrep: "$_id.salesrep",
-            salelocation: "$_id.salelocation",
+            salesrep: "$_id",
+            
+  
             pnncount: 1,
             tmbcount: 1,
             outriCount: 1,
@@ -173,12 +171,12 @@ export const getAll = async (req, res) => {
             dcpcount: 1,
             gpvalue: 1,
             sortedDates: 1,
+            salelocation: 1,
           },
         },
         {
           $sort: {
-            salelocation: 1, 
-            salesrep: 1 
+            salelocation: 1 // Sort by salesrep in alphabetical order
           },
         },
       ]);

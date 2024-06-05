@@ -6,14 +6,22 @@ import Target from "../models/target.js";
 
 export const createTarget = async (req, res) => {
   const creatableData = { ...req.body };
+
   try {
-    const storedTarget = await handleCreate(Target, null, creatableData);
-    return res.status(201).json({ target: storedTarget });
+    const storedTarget = await handleCreate(
+      Target,
+      { salelocation: { $regex: new RegExp(req.body.salelocation, 'i') } },
+      creatableData
+    );
+    return res.status(201).json({
+      target: storedTarget,
+      message: `store target created for ${req.body.salelocation}`,
+    });
   } catch (error) {
     if (error.message === "matched") {
       return res
         .status(409)
-        .json({ message: "Matching Target already exists" });
+        .json({ message: "Target already exists, may be with same store name" });
     } else {
       return res.status(500).json({ message: "Internal Server Error" });
     }
@@ -24,14 +32,23 @@ export const updateTarget = async (req, res) => {
   const { id } = req.params;
   try {
     const updatableData = { ...req.body };
-    const storedTarget = await handleUpdate(
-      Target,
-      { _id: id },
-      updatableData
-    );
+    const storedTarget = await handleUpdate(Target, { _id: id }, updatableData);
 
     return res.status(200).json({ Target: storedTarget });
   } catch (error) {
+    return res.status(501).json({ message: "something went wrong" });
+  }
+};
+export const updateAllTarget = async (req, res) => {
+  try {
+    const updatableData = { ...req.body };
+    const targets = await Target.updateMany({}, { $set: updatableData });
+
+    return res
+      .status(200)
+      .send({ message: "All documents updated successfully" });
+  } catch (error) {
+    console.log(error);
     return res.status(501).json({ message: "something went wrong" });
   }
 };

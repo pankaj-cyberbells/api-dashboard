@@ -123,7 +123,7 @@ export async function fetchAndStoreData() {
     const yesterdayDate = getYesterdayDate();
     const todayDate = getTodayDate();
     const endpoint = `https://api.clickpos.net/param/ReportQuery/ReportData?Guid=5AF49267-8C88-4C2C-8D69-7AB9B493F340&RptID=5019&RptType=1&Param1=${yesterdayDate}&Param2=${todayDate}`;
-    const response = await axios.get("https://api.clickpos.net/param/ReportQuery/ReportData?Guid=5AF49267-8C88-4C2C-8D69-7AB9B493F340&RptID=5019&RptType=1&Param1=2024/05/05&Param2=2024/05/22");
+    const response = await axios.get("https://api.clickpos.net/param/ReportQuery/ReportData?Guid=5AF49267-8C88-4C2C-8D69-7AB9B493F340&RptID=5019&RptType=1&Param1=2024/04/22&Param2=2024/05/05");
     const xml = response.data;
 
     const result = await xml2js.parseStringPromise(xml, { mergeAttrs: true });
