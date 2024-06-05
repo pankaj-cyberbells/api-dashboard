@@ -3,6 +3,7 @@ import middleware from "../verifyAcessToken.js";
 import { getAll, getByGroupByAggregate, getBySearchQuery, getCustomer, getDataByStore, getSalesRepByStore, getTmbByQuery } from "../controller/customer.js";
 import { createTarget, deleteTarget, getTarget, getTargets, updateAllTarget, updateTarget } from "../controller/target.js";
 import {createAdmin, deleteAdmin, getAllAdmins, login} from "../controller/admin.js";
+import { createNPS, deleteNPS, updateNPS } from "../controller/nps.js";
 
 const router= express.Router();
 // authentication routes ====================>
@@ -45,6 +46,20 @@ router.get( "/data-by-store",  getDataByStore);
   
   
   // target data routes ====================>
+
+
+  // NPS data routes ====================>
+  
+    // router.get( "/target/all", getAllNPS); 
+    // router.get( "/target/:salelocation", getNPS);    //=========> request.body should looks like this -----> {"salelocation":"WaRRagUL"} Torquay, Traralgon
+    router.post( "/nps", createNPS); //=========> request.body should looks like this -----> {  "salelocation":"Warragul","detr": 5,"ppn":3,"bundel":10,"tmb":12,"tyro":5,"websitebas": 5,"devicesecurity": 7}
+    router.patch( "/nps/:id", updateNPS); 
+    // router.put( "/target/all", updateAllNPS); //========> don't send "salelocation" in request.body just send value need to be updated like this -----> { "detr": 5,"ppn":3,"bundel":10,"tmb":12,"tyro":5,"websitebas": 5,"devicesecurity": 7}
+  
+    router.delete( "/nps/:id", deleteNPS); 
+
+ 
+  // NPS data routes ====================>
 
 
 

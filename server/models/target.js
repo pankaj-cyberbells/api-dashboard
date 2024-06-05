@@ -16,7 +16,6 @@ const targetSchema = mongoose.Schema({
   },
   tmb: {
     type: Number,
-    
   },
   tyro: {
     type: Number,
