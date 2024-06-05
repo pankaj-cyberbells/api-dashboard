@@ -1,7 +1,6 @@
 import { handleCreate } from "../utils/crudHelpers/Create.js";
 import { handleUpdate } from "../utils/crudHelpers/Update.js";
 import { handleDelete } from "../utils/crudHelpers/Delete.js";
-import { handleGetAll } from "../utils/crudHelpers/Get.js";
 import Target from "../models/target.js";
 
 export const createTarget = async (req, res) => {

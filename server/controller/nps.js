@@ -55,7 +55,10 @@ export const deleteNPS = async (req, res) => {
 
 export const getNPS = async (req, res) => {
   try {
-    const storedNPS = await NPS.findOne({ salelocation: { $regex: new RegExp(req.params.salelocation, 'i') } });
+    const storedNPS = await NPS.findOne( {
+      salesrep: { $regex: new RegExp(req.query.salesrep, 'i') },
+      salelocation: { $regex: new RegExp(req.query.storeLocation, 'i') }
+    },);
   
     return res.status(200).json({ NPS: storedNPS });
   } catch (error) {
@@ -69,7 +72,7 @@ export const getNPS = async (req, res) => {
   }
 };
 
-export const getNPSs = async (req, res) => {
+export const getAllNPS = async (req, res) => {
   try {
     const storedNPS = await NPS.find();
   
