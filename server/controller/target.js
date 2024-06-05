@@ -62,15 +62,27 @@ export const deleteTarget = async (req, res) => {
   }
 };
 
+export const getTarget = async (req, res) => {
+  try {
+    const storedtarget = await Target.findOne({ salelocation: { $regex: new RegExp(req.body.salelocation, 'i') } });
+  
+    return res.status(200).json({ target: storedtarget });
+  } catch (error) {
+    if (error.message === "Not Found") {
+      return res
+        .status(404)
+        .json({ message: "No target found for this store." });
+    } else {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+};
+
 export const getTargets = async (req, res) => {
   try {
-    const storedtarget = await Target.findOne();
-    // if (!storedtarget.length) {
-    //   return res
-    //     .status(404)
-    //     .json({ message: "No target found for this user." });
-    // }
-    return res.status(200).json({ target: storedtarget });
+    const storedtarget = await Target.find();
+  
+    return res.status(200).json({ targets: storedtarget });
   } catch (error) {
     if (error.message === "Not Found") {
       return res
