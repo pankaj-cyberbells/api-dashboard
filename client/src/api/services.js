@@ -30,9 +30,10 @@ export const AllStoreData = async (startDate, endDate) => {
 };
 
 
-export const getTarget = async () => {
+export const getTarget = async (salelocation) => {
+  console.log(salelocation,"kk")
   try {
-    const response = await apiClient.get(`${API_ROUTES.GET_TARGET}`);
+    const response = await apiClient.get(`${API_ROUTES.GET_TARGET}/${salelocation}`);
     console.log(response.data.target,"kk")
     return response.data.target;
   } catch (error) {

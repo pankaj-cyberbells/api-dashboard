@@ -21,9 +21,9 @@ import {
 
 export const getTargetThunk = createAsyncThunk(
   'targets/getTarget',
-  async (_, thunkAPI) => { // Assuming no parameters for getTarget
+  async (salelocation, thunkAPI) => { // Assuming no parameters for getTarget
     try {
-      const data = await getTarget();
+      const data = await getTarget(salelocation);
       return data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);

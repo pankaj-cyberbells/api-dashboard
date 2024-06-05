@@ -54,9 +54,14 @@ export default function Dashboard() {
   const { data, loading, error } = useSelector((state) => state.tableData);
   const { target,  loading: targetLoading, error: targetError } = useSelector((state) => state.targets);
  
-useEffect(() => {
-  dispatch(getTargetThunk());
-}, [dispatch]);
+  useEffect(() => {
+    let salelocation = selectedTab.value;
+    if (selectedTab.value === 'All Stores') {
+      salelocation = 'all-store';
+    }
+    dispatch(getTargetThunk(salelocation));
+  }, [dispatch, selectedTab.value]);
+
 
   console.log(data)
 
@@ -95,6 +100,13 @@ useEffect(() => {
       dispatch(loadData({ salelocation: tabValue, startDate, endDate }));
     }
   };
+  const groupedData = data.reduce((acc, item) => {
+    if (!acc[item.salelocation]) {
+      acc[item.salelocation] = [];
+    }
+    acc[item.salelocation].push(item);
+    return acc;
+  }, {});
 
   const handleTabChange = (event, newValue) => {
     console.log("pressed")
@@ -120,22 +132,7 @@ useEffect(() => {
   };
 
 
-  // const fetchData = () => {
-  //   const startDate = fromDate.split('-').reverse().join('/');
-  //   const endDate = toDate.split('-').reverse().join('/');
-  //   dispatch(loadData({ salelocation:  selectedTab.value,startDate, endDate }));
-  // };
-  // useEffect(() => {
-  //   const startDate = '01/02/24'; // replace with dynamic date from your component state
-  //   const endDate = '16/05/24'; 
-  //   dispatch(loadData({ startDate, endDate }));
-    
-  // }, [dispatch]);
-  // const fetchData = () => {
-  //   const startDate = fromDate.split('-').reverse().join('/');
-  //   const endDate = toDate.split('-').reverse().join('/');
-  //   dispatch(loadData({ startDate, endDate }));
-  // };
+ 
   useEffect(() => {
     setMutableData(data.map(item => ({ ...item }))); // Create a mutable copy of data
   }, [data]);
@@ -152,10 +149,7 @@ useEffect(() => {
     setPage(0);
   };
 
-  // const handleTabChange = (event, newValue) => {
-  //   const selectedTabValue = tabs[newValue];
-  //   setSelectedTab({ index: newValue, value: selectedTabValue });
-  // };
+  
 
   const handleDoubleClick = (rowIndex, columnId) => {
     setEditingCell({ rowIndex, columnId });
