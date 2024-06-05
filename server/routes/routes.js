@@ -36,7 +36,7 @@ router.get( "/data-by-store",  getDataByStore);
 // target data routes ====================>
   
   router.get( "/target/all", getTargets); 
-  router.get( "/target", getTarget); 
+  router.get( "/target", getTarget);    //=========> request.body should looks like this -----> {"salelocation":"WaRRagUL"}
   router.post( "/target", createTarget); //=========> request.body should looks like this -----> {  "salelocation":"Warragul","detr": 5,"ppn":3,"bundel":10,"tmb":12,"tyro":5,"websitebas": 5,"devicesecurity": 7}
   router.patch( "/target/:id", updateTarget); 
   router.put( "/target/all", updateAllTarget); //========> don't send "salelocation" in request.body just send value need to be updated like this -----> { "detr": 5,"ppn":3,"bundel":10,"tmb":12,"tyro":5,"websitebas": 5,"devicesecurity": 7}
