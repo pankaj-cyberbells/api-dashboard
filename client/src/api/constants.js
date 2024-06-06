@@ -8,6 +8,9 @@ export const API_ROUTES = {
   DELETE_TARGET: '/delete-target',
   CREATE_ADMIN: '/admin',
   ALL_ADMIN:'/all-admin',
-  LOGIN:'/login'
+  LOGIN:'/login',
+  CREATE_NPS:'/nps',
+  GET_NPS:'/nps/all',
+  UPDATE_NPS:'/nps'
     // Add more routes here as needed
   };
