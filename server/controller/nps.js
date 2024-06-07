@@ -53,11 +53,11 @@ export const deleteNPS = async (req, res) => {
 };
 
 export const getNPS = async (req, res) => {
-  const { startDate, endDate } = req.query;
+  const { salesrep, storeLocation, startDate, endDate } = req.query;
   try {
     const query = {
-      salesrep: { $regex: new RegExp(req.body.salesrep, 'i') },
-      salelocation: { $regex: new RegExp(req.body.storeLocation, 'i') },
+      salesrep: { $regex: new RegExp(salesrep, 'i') },
+      salelocation: { $regex: new RegExp(storeLocation, 'i') },
       compareDate: { 
           $gte: new Date(startDate), 
           $lte: new Date(endDate) 
