@@ -31,7 +31,8 @@ const calculateYearlyFortnights = (year) => {
 const getLastFourFortnights = (fortnights) => {
   const currentDate = new Date();
   const pastFortnights = fortnights.filter(fortnight => fortnight.start <= currentDate);
-  return pastFortnights.slice(-4);
+  const sortedFortnights = pastFortnights.slice().sort((a, b) => b.start - a.start); // Sort in descending order
+  return sortedFortnights.slice(0, 4);;
 };
 
 const FortnightDropdown = ({ selectedFortnight, setSelectedFortnight, setFromDate, setToDate }) => {

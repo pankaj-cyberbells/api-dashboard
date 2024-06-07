@@ -6,6 +6,7 @@ import {
 import Navbar from '../components/Navbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadData,AllStore } from '../features/tableDataSlice';
+import { createNpsThunk,getAllNpsThunk ,updateNpsThunk } from '../features/npsSlice';
 import DateInputs from '../components/DateInputs';
 import CircularIndicator from '../components/CircularIndicator';
 import { getTargetThunk } from '../features/targetSlice';
@@ -40,7 +41,10 @@ import FortnightDropdown from '../components/FortnightDropdown';
 //   format: (value) => value
 // }));
 
+// Define the Dashboard component
 export default function Dashboard() {
+
+    // State variables
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedTab, setSelectedTab] = useState({ index: 1, value: 'Traralgon' });
@@ -50,10 +54,15 @@ export default function Dashboard() {
   const [toDate, setToDate] = useState('');
   const [selectedFortnight, setSelectedFortnight] = useState(null);
   const [hideColumns, setHideColumns] = useState(false); 
+
+   // Redux hooks
   const dispatch = useDispatch();
   const { data, loading, error } = useSelector((state) => state.tableData);
   const { target,  loading: targetLoading, error: targetError } = useSelector((state) => state.targets);
+  const { npsData,  npsLoading,  npsError } = useSelector((state) => state.nps);
  
+
+    // Fetch targets when the selected tab changes
   useEffect(() => {
     let salelocation = selectedTab.value;
     if (selectedTab.value === 'All Stores') {
@@ -62,9 +71,13 @@ export default function Dashboard() {
     dispatch(getTargetThunk(salelocation));
   }, [dispatch, selectedTab.value]);
 
+  useEffect(() => {
+    dispatch(getAllNpsThunk()); // Assuming fetchData is an action that fetches data from the server
+  }, [createNpsThunk]);
+  console.log(npsData)
 
-  console.log(data)
 
+   // Initialize dates and fetch initial data
   useEffect(() => {
     const today = new Date();
     const thirtyDaysAgo = new Date(today);
@@ -78,6 +91,8 @@ export default function Dashboard() {
     dispatch(loadData({salelocation:  selectedTab.value,  startDate: formattedFromDate, endDate: formattedToDate }));
   }, [dispatch]);
 
+
+   // Helper functions to format dates
   const formatDate = (date) => {
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -91,6 +106,8 @@ export default function Dashboard() {
     return `${year}-${month}-${day}`;
 };
 
+
+ // Fetch data based on tab and date range
   const fetchDataForTab = (tabValue, startDate, endDate) => {
     if (tabValue === 'All Stores') {
       console.log("pressed A")
@@ -100,13 +117,21 @@ export default function Dashboard() {
       dispatch(loadData({ salelocation: tabValue, startDate, endDate }));
     }
   };
-  const groupedData = data.reduce((acc, item) => {
-    if (!acc[item.salelocation]) {
-      acc[item.salelocation] = [];
-    }
-    acc[item.salelocation].push(item);
-    return acc;
-  }, {});
+
+    // Group data by sale location
+  // const groupedData = data.reduce((acc, item) => {
+  //   if (!acc[item.salelocation]) {
+  //     acc[item.salelocation] = [];
+  //   }
+  //   acc[item.salelocation].push(item);
+  //   return acc;
+  // }, {});
+
+  // const createNewData = (newData) => {
+  //   // Dispatch an action to send the new data to the server
+  //   dispatch(createNpsThunk(newData));
+  // };
+   // Handle tab change
 
   const handleTabChange = (event, newValue) => {
     console.log("pressed")
@@ -125,6 +150,8 @@ export default function Dashboard() {
     fetchDataForTab(selectedTabValue, formattedFromDate, formattedToDate);
   };
 
+
+  // Fetch data based on current date range and tab
   const fetchData = () => {
     const startDate = fromDate.split('-').reverse().join('/');
     const endDate = toDate.split('-').reverse().join('/');
@@ -132,7 +159,9 @@ export default function Dashboard() {
   };
 
 
- 
+  useEffect(() => {
+    fetchData()
+  }, [fromDate]);
   useEffect(() => {
     setMutableData(data.map(item => ({ ...item }))); // Create a mutable copy of data
   }, [data]);
@@ -162,15 +191,99 @@ export default function Dashboard() {
       return newData;
     });
   };
+ 
+console.log(mutableData)
 
-  const handleBlur = (rowIndex, columnId) => {
+  // const handleBlur = async (rowIndex, columnId) => {
+  //   if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === columnId) {
+  //     const newData = npsData.NPSs;
+  //     newData[rowIndex][columnId] = mutableData[rowIndex][columnId]; // Update the original data with the new value
+  //     setMutableData(newData);
+  //     setEditingCell(null);
+  // console.log(newData,'jj')
+  // console.log(newData[rowIndex].salesrep,'llj')
+  
+  //     // Check if the NPS value exists for the corresponding ID
+  //     const salesrep = newData[rowIndex].salesrep; // Assuming 'column-0' contains the salesrep ID
+  //     // const npsValue = newData[rowIndex][columnId]; // Assuming the columnId contains the NPS value
+  //     const npsValue = {
+  //       salesrep: newData[rowIndex].salesrep,
+  //       salelocation: newData[rowIndex].salelocation,
+  //       NPSVol: newData[rowIndex].NPSVol,
+  //       NPSScore: newData[rowIndex].NPSScore,
+  //       adv10_9: newData[rowIndex].adv10_9,
+  //       pass8_7: newData[rowIndex].pass8_7,
+  //       detr_less_6: newData[rowIndex].detr_less_6,
+  //       updatedBy: newData[rowIndex].updatedBy,
+  //     };
+  //     // Assuming 'npsData.NPSs' is an array of existing NPS entries
+  //     const existingNpsEntry = npsData.NPSs.find(entry => entry.salesrep === salesrep);
+  // console.log(newData[rowIndex],"21")
+  //     if (existingNpsEntry) {
+  //       console.log(existingNpsEntry._id,"21")
+  //       // If an existing NPS entry is found, update it
+  //       await dispatch(updateNpsThunk({ npsId: existingNpsEntry._id, npsData: npsValue }));
+  //     } else {
+  //       console.log("21")
+  //       // If no existing NPS entry is found, create a new one
+  //       await dispatch(createNpsThunk( npsValue ));
+  //     }
+  //   }
+  // };
+  let isUpdating = false;
+  const handleBlur = async (rowIndex, columnId) => {
     if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === columnId) {
+      if (isUpdating) {
+        // If an update is already in progress, return without doing anything
+        return;
+      }
+  
+      isUpdating = true; // Set the flag to true to indicate that an update is in progress
+  
       const newData = [...mutableData];
       newData[rowIndex][columnId] = mutableData[rowIndex][columnId]; // Update the original data with the new value
       setMutableData(newData);
       setEditingCell(null);
+  
+      // Prepare the data to be sent to the API
+      const rowData = newData[rowIndex];
+      const existingNpsEntry = npsData.NPSs?.find(entry => entry.salesrep === rowData.salesrep);
+  
+      const npsValue = {
+        salesrep: rowData.salesrep,
+        salelocation: selectedTab.value,
+        NPSVol: columnId === 'column-1' ? parseFloat(rowData[columnId]) : existingNpsEntry?.NPSVol || 0,
+        NPSScore: columnId === 'column-2' ? parseFloat(rowData[columnId]) : existingNpsEntry?.NPSScore || 0,
+        adv10_9: columnId === 'column-3' ? parseFloat(rowData[columnId]) : existingNpsEntry?.adv10_9 || 0,
+        pass8_7: columnId === 'column-4' ? parseFloat(rowData[columnId]) : existingNpsEntry?.pass8_7 || 0,
+        detr_less_6: columnId === 'column-5' ? parseFloat(rowData[columnId]) : existingNpsEntry?.detr_less_6 || 0,
+        updatedBy: 'Your_Name_Here' // Replace with the actual user's name or ID
+      };
+  
+      try {
+        if (existingNpsEntry) {
+          // If an existing NPS entry is found, update it
+          await dispatch(updateNpsThunk({ npsId: existingNpsEntry._id, npsData: npsValue }));
+        } else {
+          // If no existing NPS entry is found, create a new one
+          await dispatch(createNpsThunk(npsValue));
+        }
+      } catch (error) {
+        console.error('Error updating or creating NPS data:', error);
+      } finally {
+        isUpdating = false; // Reset the flag after the update is complete
+      }
     }
   };
+
+  // const handleBlur = (rowIndex, columnId) => {
+  //   if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === columnId) {
+  //     const newData = [...mutableData];
+  //     newData[rowIndex][columnId] = mutableData[rowIndex][columnId]; // Update the original data with the new value
+  //     setMutableData(newData);
+  //     setEditingCell(null);
+  //   }
+  // };
  
   const headerNames = [
     selectedTab.value,
@@ -208,21 +321,60 @@ export default function Dashboard() {
   // const filteredData = mutableData.filter(item => item.salelocation === 'Traralgon');
 
   // Map filtered data to match the table structure
-  const rows = data.map(item => ({
-    'column-0': item.salesrep,
-    // 'column-1': item.npsVol,
-    // 'column-2': item.npsScore,
-    // 'column-3': item.adv109,
-    // 'column-4': item.pass87,
-    'column-6':item.pnncount,
-    'column-7':item.bundelnewcount,
-    'column-8': item.tmbcount,
-    'column-9': item.upgrade,
-    'column-13': item.outriCount,
-    'column-14': item.dcpcount,
-    'column-17': item.gpvalue,
-    // 'column-5': item.tbm // Make sure this matches the data structure
-  }));
+  // const rows = data.map(item => ({
+  //   'column-0': item.salesrep,
+  //   // 'column-1': item.npsVol,
+  //   // 'column-2': item.npsScore,
+  //   // 'column-3': item.adv109,
+  //   // 'column-4': item.pass87,
+  //   // 'column-5': item.detr,
+  //   'column-6':item.pnncount,
+  //   'column-7':item.bundelnewcount,
+  //   'column-8': item.tmbcount,
+  //   'column-9': item.upgrade,
+  //   'column-13': item.outriCount,
+  //   'column-14': item.dcpcount,
+  //   'column-17': item.gpvalue,
+  //   // 'column-5': item.tbm // Make sure this matches the data structure
+  // }));
+
+  
+  const rows = data.map(item => {
+    const rowData = { 'column-0': item.salesrep };
+
+    // Find all matching NPS rows for the current salesrep
+    const matchingNpsRows = npsData.NPSs?.filter(npsItem => npsItem.salesrep === item.salesrep);
+// console.log(matchingNpsRows)
+    // If there are matching NPS rows, add them to the corresponding columns
+    if (matchingNpsRows?.length > 0) {
+        matchingNpsRows.forEach((npsRow, index) => {
+            // Add NPS data to corresponding columns
+            rowData[`column-${index + 1}`] = npsRow.NPSVol; // Assuming 'NPS Score' should be added to column-1
+            // Add other NPS data to corresponding columns as needed
+            // Example:
+            rowData[`column-${index + 2}`] = npsRow.NPSScore;
+            rowData[`column-${index + 3}`] = npsRow.adv10_9;
+            rowData[`column-${index + 4}`] = npsRow.pass8_7;
+            rowData[`column-${index + 5}`] = npsRow.detr_less_6;
+        });
+    } else {
+        // If no matching NPS rows are found, set default values or leave empty
+        rowData['column-1'] = ''; // Or any default value if NPS data is not found
+        // Set default or empty values for other NPS columns
+    }
+
+    // Add other columns from the 'data' object as needed
+    rowData['column-6'] = item.pnncount;
+    rowData['column-7'] = item.bundelnewcount;
+    rowData['column-8'] = item.tmbcount;
+    rowData['column-9'] = item.upgrade;
+    rowData['column-13'] = item.outriCount;
+    rowData['column-14'] = item.dcpcount;
+    rowData['column-17'] = item.gpvalue;
+
+    return rowData;
+});
+
  
   const calculateTotals = () => {
     const totals = columns.map((column, colIndex) => {
@@ -344,7 +496,7 @@ export default function Dashboard() {
                         <TableCell
                           key={cellKey}
                           align={column.align}
-                          onDoubleClick={() => isEditable && handleDoubleClick(rowIndex, column.id)}
+                          onClick={() => isEditable && handleDoubleClick(rowIndex, column.id)}
                           onBlur={() => isEditable && handleBlur(rowIndex, column.id)}
 
                           
