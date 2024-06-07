@@ -121,3 +121,43 @@ export const isAuthenticated = () => {
   return token ? true : false;
 };
 
+// Create NPS Service
+export const createNps = async (npsData) => {
+  try {
+    const response = await apiClient.post(API_ROUTES.CREATE_NPS, npsData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Get All NPS Data Service
+export const getAllNps = async (startDate, endDate) => {
+  try {
+    const response = await apiClient.get(`${API_ROUTES.GET_NPS}?startDate=${startDate}&endDate=${endDate}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Update NPS Data Service
+export const updateNps = async (npsId, npsData) => {
+  try {
+    const response = await apiClient.patch(`${API_ROUTES.UPDATE_NPS}/${npsId}`, npsData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Delete NPS Data Service
+export const deleteNps = async (npsId) => {
+  try {
+    const response = await apiClient.delete(`${API_ROUTES.DELETE_NPS}/${npsId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
