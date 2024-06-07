@@ -9,6 +9,7 @@ const npsSchema = mongoose.Schema(
     adv10_9: { type: Number },
     pass8_7: { type: Number },
     detr_less_6: { type: Number },
+    compareDate: { type: Date,  required: true },
     updatedBy: { type: String ,  required: true },
   },
   { timestamps: true }

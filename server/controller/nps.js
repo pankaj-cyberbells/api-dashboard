@@ -3,7 +3,6 @@ import { handleUpdate } from "../utils/crudHelpers/Update.js";
 import { handleDelete } from "../utils/crudHelpers/Delete.js";
 import NPS from "../models/nps.js";
 
-
 export const createNPS = async (req, res) => {
   const creatableData = { ...req.body };
 
@@ -11,8 +10,9 @@ export const createNPS = async (req, res) => {
     const storedNPS = await handleCreate(
       NPS,
       {
-        salesrep: { $regex: new RegExp(req.body.salesrep, 'i') },
-        salelocation: { $regex: new RegExp(req.body.storeLocation, 'i') }
+        salesrep: { $regex: new RegExp(req.body.salesrep, "i") },
+        salelocation: { $regex: new RegExp(req.body.storeLocation, "i") },
+        compareDate: { $eq: new Date(req.body.compareDate) },
       },
       creatableData
     );
@@ -43,7 +43,6 @@ export const updateNPS = async (req, res) => {
   }
 };
 
-
 export const deleteNPS = async (req, res) => {
   const { id } = req.params;
   try {
@@ -54,18 +53,25 @@ export const deleteNPS = async (req, res) => {
 };
 
 export const getNPS = async (req, res) => {
+  const { startDate, endDate } = req.query;
   try {
-    const storedNPS = await NPS.findOne( {
-      salesrep: { $regex: new RegExp(req.query.salesrep, 'i') },
-      salelocation: { $regex: new RegExp(req.query.storeLocation, 'i') }
-    },);
-  
+    const query = {
+      salesrep: { $regex: new RegExp(req.body.salesrep, 'i') },
+      salelocation: { $regex: new RegExp(req.body.storeLocation, 'i') },
+      compareDate: { 
+          $gte: new Date(startDate), 
+          $lte: new Date(endDate) 
+      }
+  };
+    const storedNPS = await NPS.findOne({
+      salesrep: { $regex: new RegExp(req.query.salesrep, "i") },
+      salelocation: { $regex: new RegExp(req.query.storeLocation, "i") },
+    });
+
     return res.status(200).json({ NPS: storedNPS });
   } catch (error) {
     if (error.message === "Not Found") {
-      return res
-        .status(404)
-        .json({ message: "No NPS found for this store." });
+      return res.status(404).json({ message: "No NPS found for this store." });
     } else {
       return res.status(500).json({ message: "Internal Server Error" });
     }
@@ -75,13 +81,11 @@ export const getNPS = async (req, res) => {
 export const getAllNPS = async (req, res) => {
   try {
     const storedNPS = await NPS.find();
-  
+
     return res.status(200).json({ NPSs: storedNPS });
   } catch (error) {
     if (error.message === "Not Found") {
-      return res
-        .status(404)
-        .json({ message: "No NPS found for this user." });
+      return res.status(404).json({ message: "No NPS found for this user." });
     } else {
       return res.status(500).json({ message: "Internal Server Error" });
     }
