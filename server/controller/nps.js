@@ -63,10 +63,7 @@ export const getNPS = async (req, res) => {
           $lte: new Date(endDate) 
       }
   };
-    const storedNPS = await NPS.findOne({
-      salesrep: { $regex: new RegExp(req.query.salesrep, "i") },
-      salelocation: { $regex: new RegExp(req.query.storeLocation, "i") },
-    });
+    const storedNPS = await NPS.findOne(query);
 
     return res.status(200).json({ NPS: storedNPS });
   } catch (error) {
@@ -79,8 +76,18 @@ export const getNPS = async (req, res) => {
 };
 
 export const getAllNPS = async (req, res) => {
+  const { startDate, endDate } = req.query;
+  let dateFilter;
+  if (startDate && endDate) {
+    dateFilter =  { compareDate: { 
+      $gte: new Date(startDate), 
+      $lte: new Date(endDate) 
+  }}
+  }else{
+    dateFilter=null;
+  }
   try {
-    const storedNPS = await NPS.find();
+    const storedNPS = await NPS.find(dateFilter);
 
     return res.status(200).json({ NPSs: storedNPS });
   } catch (error) {
