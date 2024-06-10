@@ -38,11 +38,21 @@ const getLastFourFortnights = (fortnights) => {
 const FortnightDropdown = ({ selectedFortnight, setSelectedFortnight, setFromDate, setToDate }) => {
   const currentYear = new Date().getFullYear();
   const [lastFourFortnights, setLastFourFortnights] = useState([]);
-
+  const [initialLoad, setInitialLoad] = useState(true);
   useEffect(() => {
     const fortnights = calculateYearlyFortnights(currentYear);
     setLastFourFortnights(getLastFourFortnights(fortnights));
   }, [currentYear]);
+
+  useEffect(() => {
+    if (initialLoad && lastFourFortnights.length > 0) {
+      setSelectedFortnight(lastFourFortnights[0]);
+      setFromDate(formatDate(lastFourFortnights[0].start));
+      setToDate(formatDate(lastFourFortnights[0].end));
+      setInitialLoad(false);
+    }
+  }, [lastFourFortnights, initialLoad, setSelectedFortnight, setFromDate, setToDate]);
+
 
   const formatDate = (date) => {
     const day = String(date.getDate()).padStart(2, '0');
@@ -51,6 +61,8 @@ const FortnightDropdown = ({ selectedFortnight, setSelectedFortnight, setFromDat
     return `${year}-${month}-${day}`;
 };
 console.log({selectedFortnight})
+
+
   const handleFortnightChange = (e) => {
     const selectedIndex = e.target.value;
     const selectedFortnight = lastFourFortnights[selectedIndex];
