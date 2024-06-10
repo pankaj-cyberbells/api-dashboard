@@ -11,6 +11,7 @@ import DateInputs from '../components/DateInputs';
 import CircularIndicator from '../components/CircularIndicator';
 import { getTargetThunk } from '../features/targetSlice';
 import FortnightDropdown from '../components/FortnightDropdown';
+import { calculateYearlyFortnights, getLastFourFortnights, getAnps} from '../utils/formatDate';
 // import {StaticData} from "../components/data"
 // const headerNames = [
 //   'Traralgon',
@@ -96,55 +97,8 @@ export default function Dashboard() {
   const { target,  loading: targetLoading, error: targetError } = useSelector((state) => state.targets);
   const { npsData,  npsLoading,  npsError } = useSelector((state) => state.nps);
 
-  // console.log(StaticData)
-  // function getAllProductTypes(StaticData) {
-  //   const productTypes = new Set();
+  console.log(mutableData)
   
-  //   StaticData.forEach((store) => {
-  //     store.SalesDataaggregation.forEach((sale) => {
-  //       productTypes.add(sale.ProductType);
-  //     });
-  //   });
-  
-  //   return Array.from(productTypes);
-  // }
-  // function getAllStoreNames(data) {
-  //   return data.map((store) => store.StoreName);
-  // }
-  // function aggregateSalesDataByStaff(StaticData) {
-  //   const aggregatedData = {};
-  
-  //   // Get all product types
-  //   const allProductTypes = getAllProductTypes(StaticData);
-  
-  //   StaticData?.forEach((store) => {
-  //     const storeName = store.StoreName;
-  //     if (!aggregatedData[storeName]) {
-  //       aggregatedData[storeName] = {};
-  //     }
-  
-  //     store.SalesDataaggregation.forEach((sale) => {
-  //       const key = sale.SalesStaffName;
-  //       if (!aggregatedData[storeName][key]) {
-  //         aggregatedData[storeName][key] = {
-  //           SalesStaffName: sale.SalesStaffName,
-  //           SaleValue: 0,
-  //           SaleCount: 0,
-  //           salesRecord: {},
-  //         };
-  //         // Initialize salesRecord with all product types and count as 0
-  //         allProductTypes.forEach((productType) => {
-  //           aggregatedData[storeName][key].salesRecord[productType] = 0;
-  //         });
-  //       }
-  //       aggregatedData[storeName][key].SaleCount += sale.SaleCount;
-  //       aggregatedData[storeName][key].salesRecord[sale.ProductType] +=
-  //         sale.SaleCount;
-  //     });
-  //   });
-  // console.log(aggregatedData)
-  //   return aggregatedData;
-  // }
     // Fetch targets when the selected tab changes
   useEffect(() => {
    
@@ -161,26 +115,20 @@ export default function Dashboard() {
    // Initialize dates and fetch initial data
   useEffect(() => {
     const today = new Date();
-    const thirtyDaysAgo = new Date(today);
-    thirtyDaysAgo.setDate(today.getDate() - 90);
-    const formattedforFromDate =formatforDate(thirtyDaysAgo)
-    const formattedforTomDate =formatforDate(today)
-    const formattedFromDate = formatDate(thirtyDaysAgo);
-    const formattedToDate = formatDate(today);
-    setFromDate(formattedforFromDate);
-    setToDate(formattedforTomDate);
+    // const thirtyDaysAgo = new Date(today);
+    // thirtyDaysAgo.setDate(today.getDate() - 90);
+    // const formattedforFromDate =formatforDate(thirtyDaysAgo)
+    // const formattedforTomDate =formatforDate(today)
+    const formattedFromDate = formatDate(new Date(fromDate));
+    const formattedToDate = formatDate(new Date(toDate));
+    // setFromDate(formattedforFromDate);
+    // setToDate(formattedforTomDate);
     dispatch(loadData({salelocation:  selectedTab.value,  startDate: formattedFromDate, endDate: formattedToDate }));
   }, [dispatch]);
-
-
-   // Helper functions to format dates
-  // const formatDate = (date) => {
-  //   console.log(date)
-  //   const day = String(date.getDate()).padStart(2, '0');
-  //   const month = String(date.getMonth() + 1).padStart(2, '0');
-  //   const year = String(date.getFullYear()).slice(2); // Get last 2 digits of the year
-  //   return `${day}/${month}/${year}`;
-  // };
+ 
+    
+ 
+  
   const formatDate = (date) => {
     console.log(date);
     const day = String(date.getUTCDate()).padStart(2, '0');
@@ -189,7 +137,7 @@ export default function Dashboard() {
     return `${day}/${month}/${year}`;
   };
   const formatforDate = (date) => {
-    const day = String(date.getDate()).padStart(2, '0');
+    const day = String(date.getDate()+1).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = String(date.getFullYear()); // Get full year
     return `${year}-${month}-${day}`;
@@ -208,18 +156,7 @@ export default function Dashboard() {
   };
 
     // Group data by sale location
-  // const groupedData = data.reduce((acc, item) => {
-  //   if (!acc[item.salelocation]) {
-  //     acc[item.salelocation] = [];
-  //   }
-  //   acc[item.salelocation].push(item);
-  //   return acc;
-  // }, {});
-
-  // const createNewData = (newData) => {
-  //   // Dispatch an action to send the new data to the server
-  //   dispatch(createNpsThunk(newData));
-  // };
+ 
    // Handle tab change
 
   const handleTabChange = (event, newValue) => {
@@ -253,8 +190,15 @@ export default function Dashboard() {
     const endDate = toDate.split('-').reverse().join('/');
     dispatch(getAllNpsThunk({  startDate,  endDate }));
     console.log({  startDate,  endDate })
-  }, [createNpsThunk, dispatch, fromDate, toDate]);
+  }, [createNpsThunk,updateNpsThunk, dispatch, selectedFortnight]);
   // console.log(startDate)
+
+// useEffect(() => {
+//   const formattedStartDate = formatDate(new Date(fromDate));
+//   const formattedEndDate = formatDate(new Date(toDate));
+//   dispatch(getAllNpsThunk({ startDate: formattedStartDate, endDate: formattedEndDate }));
+//   console.log({ startDate: formattedStartDate, endDate: formattedEndDate });
+// }, [dispatch, fromDate, toDate]);
 
 
   useEffect(() => {
@@ -297,51 +241,64 @@ export default function Dashboard() {
   const handleBlur = async (rowIndex, columnId) => {
     if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === columnId) {
       if (isUpdating) {
-        // If an update is already in progress, return without doing anything
         return;
       }
   
       const newData = [...mutableData];
-      const originalValue = data[rowIndex][columnId]; // Get the original value from the data array
-      const newValue = newData[rowIndex][columnId]; // Get the new value from the mutable data
+      const originalValue = data[rowIndex][columnId];
+      const newValue = newData[rowIndex][columnId];
   
-      // Check if the new value is different from the original value
       if (newValue !== originalValue) {
-        isUpdating = true; // Set the flag to true to indicate that an update is in progress
+        isUpdating = true;
   
-        newData[rowIndex][columnId] = newValue; // Update the mutable data with the new value
+        newData[rowIndex][columnId] = newValue;
         setMutableData(newData);
         setEditingCell(null);
   
-        // Prepare the data to be sent to the API
         const rowData = newData[rowIndex];
-        const existingNpsEntry = npsData.NPSs?.find(entry => entry.salesrep === rowData.salesrep);
+        const existingNpsEntry = npsData?.find(entry => entry.salesrep === rowData.salesrep);
   
         const npsValue = {
           salesrep: rowData.salesrep,
           salelocation: selectedTab.value,
-          compareDate: formatDate(new Date(fromDate)),
+          compareDate: formatforDate(new Date(fromDate)),
           NPSVol: columnId === 'column-1' ? parseFloat(newValue) : existingNpsEntry?.NPSVol || 0,
           NPSScore: columnId === 'column-2' ? parseFloat(newValue) : existingNpsEntry?.NPSScore || 0,
           adv10_9: columnId === 'column-3' ? parseFloat(newValue) : existingNpsEntry?.adv10_9 || 0,
           pass8_7: columnId === 'column-4' ? parseFloat(newValue) : existingNpsEntry?.pass8_7 || 0,
           detr_less_6: columnId === 'column-5' ? parseFloat(newValue) : existingNpsEntry?.detr_less_6 || 0,
-          updatedBy: 'Akhil' // Replace with the actual user's name or ID
+          updatedBy: 'Akhil'
         };
   
-        try {
-          if (existingNpsEntry) {
-            // If an existing NPS entry is found, update it
-            await dispatch(updateNpsThunk({ npsId: existingNpsEntry._id, npsData: npsValue }));
-          } else {
-            // If no existing NPS entry is found, create a new one
-            await dispatch(createNpsThunk(npsValue));
+        // Check if selectedFortnight is not null before proceeding
+        if (selectedFortnight !== null) {
+          try {
+            if (existingNpsEntry) {
+              await dispatch(updateNpsThunk({ npsId: existingNpsEntry._id, npsData: npsValue }));
+            } else {
+              await dispatch(createNpsThunk(npsValue));
+            }
+            
+        // Add logging to check the values of fromDate and toDate
+        
+        
+        if (fromDate && toDate) {
+          const formattedFromDate = formatDate(new Date(fromDate));
+          const formattedToDate = formatDate(new Date(toDate));
+          console.log('fromDate:', formattedFromDate);
+        console.log('toDate:', formattedToDate);
+          await dispatch(getAllNpsThunk({ startDate: formattedFromDate, endDate: formattedToDate }));
+        } else {
+          console.error('fromDate or toDate is undefined:', { fromDate, toDate });
+        }
+          } catch (error) {
+            console.error('Error updating or creating NPS data:', error);
+          } finally {
+            isUpdating = false;
           }
-          await dispatch(getAllNpsThunk({ fromDate, toDate }));
-        } catch (error) {
-          console.error('Error updating or creating NPS data:', error);
-        } finally {
-          isUpdating = false; // Reset the flag after the update is complete
+        } else {
+          // Show an alert if selectedFortnight is null
+          alert('Please select a fortnight to update or create data.');
         }
       }
     }
@@ -381,33 +338,13 @@ export default function Dashboard() {
   }));
   const tabs = ['All Stores', 'Traralgon', 'Warragul', 'Torquay'];
 
-  // Filter data to show only "Traralgon" sales location
-  // const filteredData = mutableData.filter(item => item.salelocation === 'Traralgon');
-
-  // Map filtered data to match the table structure
-  // const rows = data.map(item => ({
-  //   'column-0': item.salesrep,
-  //   // 'column-1': item.npsVol,
-  //   // 'column-2': item.npsScore,
-  //   // 'column-3': item.adv109,
-  //   // 'column-4': item.pass87,
-  //   // 'column-5': item.detr,
-  //   'column-6':item.pnncount,
-  //   'column-7':item.bundelnewcount,
-  //   'column-8': item.tmbcount,
-  //   'column-9': item.upgrade,
-  //   'column-13': item.outriCount,
-  //   'column-14': item.dcpcount,
-  //   'column-17': item.gpvalue,
-  //   // 'column-5': item.tbm // Make sure this matches the data structure
-  // }));
-
+  
   
   const rows = data.map(item => {
     const rowData = { 'column-0': item.salesrep };
 
     // Find all matching NPS rows for the current salesrep
-    const matchingNpsRows = npsData.NPSs?.filter(npsItem => npsItem.salesrep === item.salesrep);
+    const matchingNpsRows = npsData?.filter(npsItem => npsItem.salesrep === item.salesrep);
 // console.log(matchingNpsRows)
     // If there are matching NPS rows, add them to the corresponding columns
     if (matchingNpsRows?.length > 0) {
@@ -575,7 +512,7 @@ export default function Dashboard() {
                           editingCell.columnId === column.id ? (
                             <TextField
                               // value={value}
-                              value={mutableData[rowIndex][column.id]}
+                              value={mutableData[rowIndex] ? mutableData[rowIndex][column.id] : ''}
                               onChange={(event) => handleInputChange(event, rowIndex, column.id)}
                               onBlur={() => handleBlur(rowIndex, column.id)}
                               autoFocus

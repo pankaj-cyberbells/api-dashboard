@@ -19,6 +19,7 @@ const authSlice = createSlice({
     token: localStorage.getItem('token') || null,
     status: 'idle',
     error: null,
+    isCreateUserAllowed: false, 
   },
   reducers: {
     logoutUser: (state) => {
@@ -36,6 +37,7 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.user = action.payload.admin;
         state.token = action.payload.token;
+        state.isCreateUserAllowed = action.payload.admin.email === 'gauravisonline@gmail.com';
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.status = 'failed';
