@@ -76,29 +76,33 @@ export const getNPS = async (req, res) => {
 };
 
 export const getAllNPS = async (req, res) => {
-  const { salesrep, storeLocation, startDate, endDate } = req.query;
-  let query;
-  if (startDate && endDate) {
-    const query = {
-      salesrep: { $regex: new RegExp(salesrep, 'i') },
-      salelocation: { $regex: new RegExp(storeLocation, 'i') },
-      compareDate: { 
-          $gte: new Date(startDate), 
-          $lte: new Date(endDate) 
-      }
-  }
-  }else{
-    query=null;
-  }
-  try {
-    const storedNPS = await NPS.find(query);
+  const {startDate, endDate } = req.query;
+  const parseDate = (dateStr) => {
+    const [day, month, year] = dateStr.trim().split('/');
+    const fullYear = year.length === 2 ? `20${year}` : year; // Convert two-digit year to four-digit year if necessary
+    return new Date(`${fullYear}-${month}-${day}`);
+  };
 
-    return res.status(200).json({ NPSs: storedNPS });
+let query = {};
+
+if (startDate && endDate) {
+  query = {
+    compareDate: {
+      $gte: parseDate(startDate),
+      $lte: parseDate(endDate),
+    }
+  };
+}
+
+try {
+  const storedNPS = await NPS.find(query);
+  res.status(200).json(storedNPS);
   } catch (error) {
+    console.log(error);
     if (error.message === "Not Found") {
       return res.status(404).json({ message: "No NPS found for this user." });
     } else {
-      return res.status(500).json({ message: "Internal Server Error" });
+      return res.status(500).json({ message: "Internal Server Error", error });
     }
   }
 };
