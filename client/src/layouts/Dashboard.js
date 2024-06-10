@@ -11,6 +11,7 @@ import DateInputs from '../components/DateInputs';
 import CircularIndicator from '../components/CircularIndicator';
 import { getTargetThunk } from '../features/targetSlice';
 import FortnightDropdown from '../components/FortnightDropdown';
+// import {StaticData} from "../components/data"
 // const headerNames = [
 //   'Traralgon',
 // 'NPSVol',
@@ -41,7 +42,41 @@ import FortnightDropdown from '../components/FortnightDropdown';
 //   format: (value) => value
 // }));
 
+// const fetchData = async (startDate, endDate) => {
+//   const url = `https://tcpsvr121.clickpos.net/ctime/ctimeapi/Sales/SaleDatafusion?startdate=${startDate}&enddate=${endDate}`;
+//   const token = '5AF49267-8C88-4C2C-8D69-7AB9B493F340';
+
+//   const corsProxy = 'https://cors-anywhere.herokuapp.com/'; // Public CORS proxy
+
+//   try {
+//     const response = await fetch(corsProxy + url, {
+//       method: 'GET',
+//       headers: {
+//         'Authorization': `Bearer ${token}`
+//       }
+//     });
+
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+
+//     const data = await response.json();
+//     console.log(data); // Handle the data here
+//     return data;
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//   }
+// };
+
+// // Example usage
+// const startDate = '2024-04-22 00:00:00';
+// const endDate = '2024-05-05 23:58:00';
+
+// fetchData(startDate, endDate);
+
 // Define the Dashboard component
+
+
 export default function Dashboard() {
 
     // State variables
@@ -60,10 +95,59 @@ export default function Dashboard() {
   const { data, loading, error } = useSelector((state) => state.tableData);
   const { target,  loading: targetLoading, error: targetError } = useSelector((state) => state.targets);
   const { npsData,  npsLoading,  npsError } = useSelector((state) => state.nps);
- 
 
+  // console.log(StaticData)
+  // function getAllProductTypes(StaticData) {
+  //   const productTypes = new Set();
+  
+  //   StaticData.forEach((store) => {
+  //     store.SalesDataaggregation.forEach((sale) => {
+  //       productTypes.add(sale.ProductType);
+  //     });
+  //   });
+  
+  //   return Array.from(productTypes);
+  // }
+  // function getAllStoreNames(data) {
+  //   return data.map((store) => store.StoreName);
+  // }
+  // function aggregateSalesDataByStaff(StaticData) {
+  //   const aggregatedData = {};
+  
+  //   // Get all product types
+  //   const allProductTypes = getAllProductTypes(StaticData);
+  
+  //   StaticData?.forEach((store) => {
+  //     const storeName = store.StoreName;
+  //     if (!aggregatedData[storeName]) {
+  //       aggregatedData[storeName] = {};
+  //     }
+  
+  //     store.SalesDataaggregation.forEach((sale) => {
+  //       const key = sale.SalesStaffName;
+  //       if (!aggregatedData[storeName][key]) {
+  //         aggregatedData[storeName][key] = {
+  //           SalesStaffName: sale.SalesStaffName,
+  //           SaleValue: 0,
+  //           SaleCount: 0,
+  //           salesRecord: {},
+  //         };
+  //         // Initialize salesRecord with all product types and count as 0
+  //         allProductTypes.forEach((productType) => {
+  //           aggregatedData[storeName][key].salesRecord[productType] = 0;
+  //         });
+  //       }
+  //       aggregatedData[storeName][key].SaleCount += sale.SaleCount;
+  //       aggregatedData[storeName][key].salesRecord[sale.ProductType] +=
+  //         sale.SaleCount;
+  //     });
+  //   });
+  // console.log(aggregatedData)
+  //   return aggregatedData;
+  // }
     // Fetch targets when the selected tab changes
   useEffect(() => {
+   
     let salelocation = selectedTab.value;
     if (selectedTab.value === 'All Stores') {
       salelocation = 'all-store';
@@ -71,10 +155,7 @@ export default function Dashboard() {
     dispatch(getTargetThunk(salelocation));
   }, [dispatch, selectedTab.value]);
 
-  useEffect(() => {
-    dispatch(getAllNpsThunk()); // Assuming fetchData is an action that fetches data from the server
-  }, [createNpsThunk]);
-  console.log(npsData)
+ 
 
 
    // Initialize dates and fetch initial data
@@ -93,10 +174,18 @@ export default function Dashboard() {
 
 
    // Helper functions to format dates
+  // const formatDate = (date) => {
+  //   console.log(date)
+  //   const day = String(date.getDate()).padStart(2, '0');
+  //   const month = String(date.getMonth() + 1).padStart(2, '0');
+  //   const year = String(date.getFullYear()).slice(2); // Get last 2 digits of the year
+  //   return `${day}/${month}/${year}`;
+  // };
   const formatDate = (date) => {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(2); // Get last 2 digits of the year
+    console.log(date);
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = String(date.getUTCFullYear()).slice(2); // Get last 2 digits of the year
     return `${day}/${month}/${year}`;
   };
   const formatforDate = (date) => {
@@ -135,18 +224,20 @@ export default function Dashboard() {
 
   const handleTabChange = (event, newValue) => {
     console.log("pressed")
-    setSelectedFortnight(null);
+    // setSelectedFortnight(null);
     const selectedTabValue = tabs[newValue];
     setSelectedTab({ index: newValue, value: selectedTabValue });
-    const today = new Date();
-    const thirtyDaysAgo = new Date(today);
-    thirtyDaysAgo.setDate(today.getDate() - 90);
-    const formattedforFromDate =formatforDate(thirtyDaysAgo)
-    const formattedforTomDate =formatforDate(today)
-    const formattedFromDate = formatDate(thirtyDaysAgo);
-    const formattedToDate = formatDate(today);
-    setFromDate(formattedforFromDate);
-    setToDate(formattedforTomDate);
+    // const today = new Date();
+    // const thirtyDaysAgo = new Date(today);
+    // thirtyDaysAgo.setDate(today.getDate() - 90);
+    // const formattedforFromDate =formatforDate(thirtyDaysAgo)
+    // const formattedforTomDate =formatforDate(today)
+    // const formattedFromDate = formatDate(thirtyDaysAgo);
+    // const formattedToDate = formatDate(today);
+    const formattedFromDate = formatDate(new Date(fromDate));
+    const formattedToDate = formatDate(new Date(toDate));
+    // setFromDate(formattedforFromDate);
+    // setToDate(formattedforTomDate);
     fetchDataForTab(selectedTabValue, formattedFromDate, formattedToDate);
   };
 
@@ -157,11 +248,18 @@ export default function Dashboard() {
     const endDate = toDate.split('-').reverse().join('/');
     fetchDataForTab(selectedTab.value, startDate, endDate);
   };
+  useEffect(() => {
+    const startDate = fromDate.split('-').reverse().join('/');
+    const endDate = toDate.split('-').reverse().join('/');
+    dispatch(getAllNpsThunk({  startDate,  endDate }));
+    console.log({  startDate,  endDate })
+  }, [createNpsThunk, dispatch, fromDate, toDate]);
+  // console.log(startDate)
 
 
   useEffect(() => {
     fetchData()
-  }, [fromDate]);
+  }, [fromDate,toDate]);
   useEffect(() => {
     setMutableData(data.map(item => ({ ...item }))); // Create a mutable copy of data
   }, [data]);
@@ -192,44 +290,9 @@ export default function Dashboard() {
     });
   };
  
-console.log(mutableData)
 
-  // const handleBlur = async (rowIndex, columnId) => {
-  //   if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === columnId) {
-  //     const newData = npsData.NPSs;
-  //     newData[rowIndex][columnId] = mutableData[rowIndex][columnId]; // Update the original data with the new value
-  //     setMutableData(newData);
-  //     setEditingCell(null);
-  // console.log(newData,'jj')
-  // console.log(newData[rowIndex].salesrep,'llj')
+
   
-  //     // Check if the NPS value exists for the corresponding ID
-  //     const salesrep = newData[rowIndex].salesrep; // Assuming 'column-0' contains the salesrep ID
-  //     // const npsValue = newData[rowIndex][columnId]; // Assuming the columnId contains the NPS value
-  //     const npsValue = {
-  //       salesrep: newData[rowIndex].salesrep,
-  //       salelocation: newData[rowIndex].salelocation,
-  //       NPSVol: newData[rowIndex].NPSVol,
-  //       NPSScore: newData[rowIndex].NPSScore,
-  //       adv10_9: newData[rowIndex].adv10_9,
-  //       pass8_7: newData[rowIndex].pass8_7,
-  //       detr_less_6: newData[rowIndex].detr_less_6,
-  //       updatedBy: newData[rowIndex].updatedBy,
-  //     };
-  //     // Assuming 'npsData.NPSs' is an array of existing NPS entries
-  //     const existingNpsEntry = npsData.NPSs.find(entry => entry.salesrep === salesrep);
-  // console.log(newData[rowIndex],"21")
-  //     if (existingNpsEntry) {
-  //       console.log(existingNpsEntry._id,"21")
-  //       // If an existing NPS entry is found, update it
-  //       await dispatch(updateNpsThunk({ npsId: existingNpsEntry._id, npsData: npsValue }));
-  //     } else {
-  //       console.log("21")
-  //       // If no existing NPS entry is found, create a new one
-  //       await dispatch(createNpsThunk( npsValue ));
-  //     }
-  //   }
-  // };
   let isUpdating = false;
   const handleBlur = async (rowIndex, columnId) => {
     if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === columnId) {
@@ -238,52 +301,53 @@ console.log(mutableData)
         return;
       }
   
-      isUpdating = true; // Set the flag to true to indicate that an update is in progress
-  
       const newData = [...mutableData];
-      newData[rowIndex][columnId] = mutableData[rowIndex][columnId]; // Update the original data with the new value
-      setMutableData(newData);
-      setEditingCell(null);
+      const originalValue = data[rowIndex][columnId]; // Get the original value from the data array
+      const newValue = newData[rowIndex][columnId]; // Get the new value from the mutable data
   
-      // Prepare the data to be sent to the API
-      const rowData = newData[rowIndex];
-      const existingNpsEntry = npsData.NPSs?.find(entry => entry.salesrep === rowData.salesrep);
+      // Check if the new value is different from the original value
+      if (newValue !== originalValue) {
+        isUpdating = true; // Set the flag to true to indicate that an update is in progress
   
-      const npsValue = {
-        salesrep: rowData.salesrep,
-        salelocation: selectedTab.value,
-        NPSVol: columnId === 'column-1' ? parseFloat(rowData[columnId]) : existingNpsEntry?.NPSVol || 0,
-        NPSScore: columnId === 'column-2' ? parseFloat(rowData[columnId]) : existingNpsEntry?.NPSScore || 0,
-        adv10_9: columnId === 'column-3' ? parseFloat(rowData[columnId]) : existingNpsEntry?.adv10_9 || 0,
-        pass8_7: columnId === 'column-4' ? parseFloat(rowData[columnId]) : existingNpsEntry?.pass8_7 || 0,
-        detr_less_6: columnId === 'column-5' ? parseFloat(rowData[columnId]) : existingNpsEntry?.detr_less_6 || 0,
-        updatedBy: 'Your_Name_Here' // Replace with the actual user's name or ID
-      };
+        newData[rowIndex][columnId] = newValue; // Update the mutable data with the new value
+        setMutableData(newData);
+        setEditingCell(null);
   
-      try {
-        if (existingNpsEntry) {
-          // If an existing NPS entry is found, update it
-          await dispatch(updateNpsThunk({ npsId: existingNpsEntry._id, npsData: npsValue }));
-        } else {
-          // If no existing NPS entry is found, create a new one
-          await dispatch(createNpsThunk(npsValue));
+        // Prepare the data to be sent to the API
+        const rowData = newData[rowIndex];
+        const existingNpsEntry = npsData.NPSs?.find(entry => entry.salesrep === rowData.salesrep);
+  
+        const npsValue = {
+          salesrep: rowData.salesrep,
+          salelocation: selectedTab.value,
+          compareDate: formatDate(new Date(fromDate)),
+          NPSVol: columnId === 'column-1' ? parseFloat(newValue) : existingNpsEntry?.NPSVol || 0,
+          NPSScore: columnId === 'column-2' ? parseFloat(newValue) : existingNpsEntry?.NPSScore || 0,
+          adv10_9: columnId === 'column-3' ? parseFloat(newValue) : existingNpsEntry?.adv10_9 || 0,
+          pass8_7: columnId === 'column-4' ? parseFloat(newValue) : existingNpsEntry?.pass8_7 || 0,
+          detr_less_6: columnId === 'column-5' ? parseFloat(newValue) : existingNpsEntry?.detr_less_6 || 0,
+          updatedBy: 'Akhil' // Replace with the actual user's name or ID
+        };
+  
+        try {
+          if (existingNpsEntry) {
+            // If an existing NPS entry is found, update it
+            await dispatch(updateNpsThunk({ npsId: existingNpsEntry._id, npsData: npsValue }));
+          } else {
+            // If no existing NPS entry is found, create a new one
+            await dispatch(createNpsThunk(npsValue));
+          }
+          await dispatch(getAllNpsThunk({ fromDate, toDate }));
+        } catch (error) {
+          console.error('Error updating or creating NPS data:', error);
+        } finally {
+          isUpdating = false; // Reset the flag after the update is complete
         }
-      } catch (error) {
-        console.error('Error updating or creating NPS data:', error);
-      } finally {
-        isUpdating = false; // Reset the flag after the update is complete
       }
     }
   };
 
-  // const handleBlur = (rowIndex, columnId) => {
-  //   if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === columnId) {
-  //     const newData = [...mutableData];
-  //     newData[rowIndex][columnId] = mutableData[rowIndex][columnId]; // Update the original data with the new value
-  //     setMutableData(newData);
-  //     setEditingCell(null);
-  //   }
-  // };
+
  
   const headerNames = [
     selectedTab.value,

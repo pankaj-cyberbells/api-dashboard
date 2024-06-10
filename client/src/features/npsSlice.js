@@ -11,14 +11,18 @@ export const createNpsThunk = createAsyncThunk('nps/createNps', async (npsData, 
   }
 });
 
-export const getAllNpsThunk = createAsyncThunk('nps/getAllNps', async (_, { rejectWithValue }) => {
-  try {
-    const response = await getAllNps();
-    return response;
-  } catch (error) {
-    return rejectWithValue(error.response.data);
-  }
-});
+export const getAllNpsThunk = createAsyncThunk(
+    'nps/getAllNps',
+    async ({ startDate, endDate }, { rejectWithValue }) => {
+        console.log({ startDate, endDate })
+      try {
+        const response = await getAllNps(startDate, endDate);
+        return response;
+      } catch (error) {
+        return rejectWithValue(error.response.data);
+      }
+    }
+  );
 
 export const updateNpsThunk = createAsyncThunk('nps/updateNps', async ({ npsId, npsData }, { rejectWithValue }) => {
     console.log(npsData)
