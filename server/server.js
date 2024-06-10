@@ -6,7 +6,7 @@ import { fetchAndStoreData } from "./utils/cron.js";
 import cron from "node-cron"
 import * as dotenv from "dotenv"
 dotenv.config()
-const port=process.env.PORT ||5002;
+const port=5002;
 const app=express();
 
 
@@ -14,7 +14,7 @@ const app=express();
 app.use(express.json());
 // app.use(cors());
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://135.181.192.4:3000');
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
 res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();

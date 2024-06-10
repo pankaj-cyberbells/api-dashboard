@@ -13,6 +13,7 @@ export const AllStore = createAsyncThunk(
   'tableData/allstore',
   async ({startDate, endDate }) => {
     const response = await AllStoreData(startDate, endDate);
+    console.log(response, "all-store");
     return response;
   }
 );

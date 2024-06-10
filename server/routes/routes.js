@@ -57,10 +57,11 @@ router.get( "/data-by-store",  getDataByStore);
     // router.put( "/target/all", updateAllNPS); //========> don't send "salelocation" in request.body just send value need to be updated like this -----> { "detr": 5,"ppn":3,"bundel":10,"tmb":12,"tyro":5,"websitebas": 5,"devicesecurity": 7}
   
     router.delete( "/nps/:id", deleteNPS); 
-
- 
-  // NPS data routes ====================>
-
+    
+    
+    // NPS data routes ====================>
+      
+      // router.get( "/test", fetchData); 
 
 
 
