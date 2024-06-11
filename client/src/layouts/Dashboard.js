@@ -80,18 +80,18 @@ export default function Dashboard() {
     return `${year}-${month}-${day}`;
 };
 
-useEffect(() => {
-  const startDate = fromDate.split('-').reverse().join('/');
-  const endDate = toDate.split('-').reverse().join('/');
-  fetchDataForTab(selectedTab.value, startDate, endDate);
+// useEffect(() => {
+//   const startDate = fromDate.split('-').reverse().join('/');
+//   const endDate = toDate.split('-').reverse().join('/');
+//   fetchDataForTab(selectedTab.value, startDate, endDate);
 
-  // Set the no data message
-  if (data.length === 0) {
-    setNoDataMessage(`No data found between ${fromDate} and ${toDate}`);
-  } else {
-    setNoDataMessage('');
-  }
-}, [fromDate, toDate]);
+//   // Set the no data message
+//   if (data?.length === 0) {
+//     setNoDataMessage(`No data found between ${fromDate} and ${toDate}`);
+//   } else {
+//     setNoDataMessage('');
+//   }
+// }, [fromDate, toDate]);
  // Fetch data based on tab and date range
   const fetchDataForTab = (tabValue, startDate, endDate) => {
     if (tabValue === 'All Stores') {
