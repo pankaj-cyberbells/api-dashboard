@@ -12,70 +12,7 @@ import CircularIndicator from '../components/CircularIndicator';
 import { getTargetThunk } from '../features/targetSlice';
 import FortnightDropdown from '../components/FortnightDropdown';
 import { calculateYearlyFortnights, getLastFourFortnights, getAnps} from '../utils/formatDate';
-// import {StaticData} from "../components/data"
-// const headerNames = [
-//   'Traralgon',
-// 'NPSVol',
-// 'NPS Score',
-// 'adv 10-9',
-// 'Pass 8-7',
-// `Detr (${target?.detr || 'N/A'})`,
-// `PPN(6) (${target?.ppn || 'N/A'})`,
-// `Bundle New(2) (${target?.bundle || 'N/A'})`,
-// `TMB(5) (${target?.tmb || 'N/A'})`,
-// 'Upgrade & Protect',
-// `Tyro(2) (${target?.tyro || 'N/A'})`,
-// `Website BAS(1) (${target?.websitebas || 'N/A'})`,
-// `Device Security($10/m)(1) (${target?.devicesecurity || 'N/A'})`,
-// 'Outright Mobile/Tablet Inc Prepaid',
-// 'DCP Mobile/Tablet',
-// 'Smart Watch',
-// 'Acc GP',
-// 'Handset/Plan GP',
-// 'Total GP'
-// ];
 
-// const columns = headerNames.map((header, index) => ({
-//   id: `column-${index}`,
-//   label: header,
-//   minWidth: 120,
-//   align: 'center',
-//   format: (value) => value
-// }));
-
-// const fetchData = async (startDate, endDate) => {
-//   const url = `https://tcpsvr121.clickpos.net/ctime/ctimeapi/Sales/SaleDatafusion?startdate=${startDate}&enddate=${endDate}`;
-//   const token = '5AF49267-8C88-4C2C-8D69-7AB9B493F340';
-
-//   const corsProxy = 'https://cors-anywhere.herokuapp.com/'; // Public CORS proxy
-
-//   try {
-//     const response = await fetch(corsProxy + url, {
-//       method: 'GET',
-//       headers: {
-//         'Authorization': `Bearer ${token}`
-//       }
-//     });
-
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! status: ${response.status}`);
-//     }
-
-//     const data = await response.json();
-//     console.log(data); // Handle the data here
-//     return data;
-//   } catch (error) {
-//     console.error('Error fetching data:', error);
-//   }
-// };
-
-// // Example usage
-// const startDate = '2024-04-22 00:00:00';
-// const endDate = '2024-05-05 23:58:00';
-
-// fetchData(startDate, endDate);
-
-// Define the Dashboard component
 
 
 export default function Dashboard() {
@@ -90,7 +27,7 @@ export default function Dashboard() {
   const [toDate, setToDate] = useState('');
   const [selectedFortnight, setSelectedFortnight] = useState(null);
   const [hideColumns, setHideColumns] = useState(false); 
-
+  const [noDataMessage, setNoDataMessage] = useState('');
    // Redux hooks
   const dispatch = useDispatch();
   const { data, loading, error } = useSelector((state) => state.tableData);
@@ -143,7 +80,18 @@ export default function Dashboard() {
     return `${year}-${month}-${day}`;
 };
 
+useEffect(() => {
+  const startDate = fromDate.split('-').reverse().join('/');
+  const endDate = toDate.split('-').reverse().join('/');
+  fetchDataForTab(selectedTab.value, startDate, endDate);
 
+  // Set the no data message
+  if (data.length === 0) {
+    setNoDataMessage(`No data found between ${fromDate} and ${toDate}`);
+  } else {
+    setNoDataMessage('');
+  }
+}, [fromDate, toDate]);
  // Fetch data based on tab and date range
   const fetchDataForTab = (tabValue, startDate, endDate) => {
     if (tabValue === 'All Stores') {
@@ -323,6 +271,7 @@ export default function Dashboard() {
   `Device Security($10/m) (${target?.devicesecurity || 'N/A'})`,
   'Outright Mobile/Tablet Inc Prepaid',
   'DCP Mobile/Tablet',
+  'Belong NBN',
   'Smart Watch',
   'Acc GP',
   'Handset/Plan GP',
@@ -345,14 +294,10 @@ export default function Dashboard() {
 
     // Find all matching NPS rows for the current salesrep
     const matchingNpsRows = npsData?.filter(npsItem => npsItem.salesrep === item.salesrep);
-// console.log(matchingNpsRows)
-    // If there are matching NPS rows, add them to the corresponding columns
     if (matchingNpsRows?.length > 0) {
         matchingNpsRows.forEach((npsRow, index) => {
             // Add NPS data to corresponding columns
-            rowData[`column-${index + 1}`] = npsRow.NPSVol; // Assuming 'NPS Score' should be added to column-1
-            // Add other NPS data to corresponding columns as needed
-            // Example:
+            rowData[`column-${index + 1}`] = npsRow.NPSVol; // Assuming 'NPS Score' 
             rowData[`column-${index + 2}`] = npsRow.NPSScore;
             rowData[`column-${index + 3}`] = npsRow.adv10_9;
             rowData[`column-${index + 4}`] = npsRow.pass8_7;
@@ -360,8 +305,7 @@ export default function Dashboard() {
         });
     } else {
         // If no matching NPS rows are found, set default values or leave empty
-        rowData['column-1'] = ''; // Or any default value if NPS data is not found
-        // Set default or empty values for other NPS columns
+        rowData['column-1'] = ''
     }
 
     // Add other columns from the 'data' object as needed
@@ -371,7 +315,9 @@ export default function Dashboard() {
     rowData['column-9'] = item.upgrade;
     rowData['column-13'] = item.outriCount;
     rowData['column-14'] = item.dcpcount;
-    rowData['column-17'] = item.gpvalue;
+    rowData['column-15'] = item['Belong NBN'];
+    rowData['column-18'] = item.gpvalue;
+    rowData['column-19'] = parseFloat(item.SaleValue).toFixed(2);
 
     return rowData;
 });
@@ -476,7 +422,7 @@ export default function Dashboard() {
                     <TableCell
                       key={column.id}
                       align={column.align}
-                      style={{ minWidth: column.minWidth, fontWeight: 'bold', backgroundColor: '#f5f5f5', border: '1px solid #e0e0e0'}}
+                      style={{ minWidth: column.minWidth, fontWeight: 'bold',   backgroundColor: '#f5f5f5', border: '1px solid #e0e0e0'}}
                     >
                       {column.label}
                     </TableCell>
@@ -485,6 +431,13 @@ export default function Dashboard() {
               </TableRow>
             </TableHead>
             <TableBody>
+            {noDataMessage ? (
+    <TableRow>
+      <TableCell colSpan={columns.length} align="center">
+        {noDataMessage}
+      </TableCell>
+    </TableRow>
+  ) : (  <>
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, rowIndex) => (
                   !hideColumns || ( rowIndex !== rows.length ) ? ( // Conditionally render rows
                   <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex}>
@@ -552,6 +505,8 @@ export default function Dashboard() {
                     ) : null
                   ))}
                 </TableRow>
+                </>
+  )}
               </TableBody>
           </Table>
         </TableContainer>
