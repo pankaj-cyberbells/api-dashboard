@@ -1901,7 +1901,11 @@ export async function aggregateSalesDataByStaff(data, location) {
       staffAggregations[key].SaleValue += sale.SaleValue;
       const mappedType =
         productTypeMapping[sale.ProductType] || sale.ProductType;
-      staffAggregations[key][mappedType] += sale.SaleCount;
+        if (mappedType === "gpvalue") {
+          staffAggregations[key][mappedType] += sale.SaleValue;
+        } else {
+          staffAggregations[key][mappedType] += sale.SaleCount;
+        }
     });
 
     // Add the staff aggregations for this store to the final result array

@@ -209,7 +209,7 @@ export default function Dashboard() {
         const npsValue = {
           salesrep: rowData.salesrep,
           salelocation: selectedTab.value,
-          compareDate: formatforDate(new Date(fromDate)),
+          createdDate: formatforDate(new Date()),
           NPSVol: columnId === 'column-1' ? parseFloat(newValue) : existingNpsEntry?.NPSVol || 0,
           NPSScore: columnId === 'column-2' ? parseFloat(newValue) : existingNpsEntry?.NPSScore || 0,
           adv10_9: columnId === 'column-3' ? parseFloat(newValue) : existingNpsEntry?.adv10_9 || 0,
@@ -296,9 +296,16 @@ export default function Dashboard() {
     const matchingNpsRows = npsData?.filter(npsItem => npsItem.salesrep === item.salesrep);
     if (matchingNpsRows?.length > 0) {
         matchingNpsRows.forEach((npsRow, index) => {
+           // Calculate NPSVol
+        const NPSVol = npsRow.adv10_9 + npsRow.pass8_7 + npsRow.detr_less_6;
+
+        // Calculate NPS Score
+        const NPSAdvPercentage = NPSVol !== 0 ? ((npsRow.adv10_9 / NPSVol) * 100).toFixed(2) : 0;
+        const NPSDetrPercentage = NPSVol !== 0 ? ((npsRow.detr_less_6 / NPSVol) * 100).toFixed(2) : 0;
+        const NPSScore = (NPSAdvPercentage - NPSDetrPercentage).toFixed(2);
             // Add NPS data to corresponding columns
-            rowData[`column-${index + 1}`] = npsRow.NPSVol; // Assuming 'NPS Score' 
-            rowData[`column-${index + 2}`] = npsRow.NPSScore;
+            rowData[`column-${index + 1}`] = NPSVol; // Assuming 'NPS Score' 
+            rowData[`column-${index + 2}`] = `${NPSScore} %`;
             rowData[`column-${index + 3}`] = npsRow.adv10_9;
             rowData[`column-${index + 4}`] = npsRow.pass8_7;
             rowData[`column-${index + 5}`] = npsRow.detr_less_6;
@@ -444,7 +451,7 @@ export default function Dashboard() {
                     {columns.map((column, colIndex) => {
                       const cellKey = `${rowIndex}-${column.id}`;
                       const value = row[column.id];
-                      const isEditable = colIndex >= 1 && colIndex <= 5; // Make columns 2, 3, 4, 5 editable
+                      const isEditable = colIndex >= 3   && colIndex <= 5; // Make columns 2, 3, 4, 5 editable
                       return (
                         !hideColumns || colIndex > 5  || colIndex < 1 ? (
                         <TableCell
