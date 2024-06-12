@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const npsSchema = mongoose.Schema(
+const dummyNps = mongoose.Schema(
   {
     salesrep: { type: String,  required: true  },
     salelocation: { type: String,  required: true  },
@@ -9,12 +9,12 @@ const npsSchema = mongoose.Schema(
     adv10_9: { type: Number },
     pass8_7: { type: Number },
     detr_less_6: { type: Number },
-    createdDate: { type: Date,  required: true },
+    createdDate:{ type: Date },
     updatedBy: { type: String ,  required: true },
   },
   { timestamps: true }
 );
 
-const NPS = mongoose.model("NPS", npsSchema);
+const DummyNPS = mongoose.model("DummyNPS", dummyNps);
 
-export default NPS;
+export default DummyNPS;

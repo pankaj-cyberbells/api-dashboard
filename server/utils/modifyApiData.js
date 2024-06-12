@@ -1851,7 +1851,7 @@ export const jsonData = [
   },
 ];
 
-export function aggregateSalesDataByStaff(data, location) {
+export async function aggregateSalesDataByStaff(data, location) {
   const aggregatedData = [];
 
   // Define the mapping for product type keys

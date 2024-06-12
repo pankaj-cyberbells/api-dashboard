@@ -12,7 +12,7 @@ export const createNPS = async (req, res) => {
       {
         salesrep: { $regex: new RegExp(req.body.salesrep, "i") },
         salelocation: { $regex: new RegExp(req.body.storeLocation, "i") },
-        compareDate: { $eq: new Date(req.body.compareDate) },
+        createdDate: { $eq: new Date(req.body.createdDate) },
       },
       creatableData
     );
@@ -58,7 +58,7 @@ export const getNPS = async (req, res) => {
     const query = {
       salesrep: { $regex: new RegExp(salesrep, 'i') },
       salelocation: { $regex: new RegExp(storeLocation, 'i') },
-      compareDate: { 
+      createdDate: { 
           $gte: new Date(startDate), 
           $lte: new Date(endDate) 
       }
@@ -87,7 +87,7 @@ let query = {};
 
 if (startDate && endDate) {
   query = {
-    compareDate: {
+    createdDate: {
       $gte: parseDate(startDate),
       $lte: parseDate(endDate),
     }
