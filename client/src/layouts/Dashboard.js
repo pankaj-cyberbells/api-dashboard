@@ -236,7 +236,7 @@ export default function Dashboard() {
         // Check if selectedFortnight is not null before proceeding
         if (selectedFortnight !== null) {
           try {
-            const createdAtFormatted = existingNpsEntry ? forrmatDate(existingNpsEntry.createdAt) : null;
+            const createdAtFormatted = existingNpsEntry ? forrmatDate(existingNpsEntry.createdDate) : null;
             console.log(createdAtFormatted,currentDate)
             if (existingNpsEntry && createdAtFormatted === currentDate) {
               await dispatch(updateNpsThunk({ npsData: npsValue }));
