@@ -205,7 +205,7 @@ export default function Dashboard() {
   
         const rowData = newData[rowIndex];
         const existingNpsEntry = npsData?.find(entry => entry.salesrep === rowData.salesrep);
-  
+        const filedName=columnId === 'column-1'?"NPSVol" :columnId === 'column-2'?"NPSScore":columnId === 'column-3'?"adv10_9":columnId === 'column-4'?"pass8_7":columnId === 'column-5' ?"detr_less_6":null; 
         const npsValue = {
           salesrep: rowData.salesrep,
           salelocation: selectedTab.value,
@@ -215,7 +215,8 @@ export default function Dashboard() {
           adv10_9: columnId === 'column-3' ? parseFloat(newValue) : existingNpsEntry?.adv10_9 || 0,
           pass8_7: columnId === 'column-4' ? parseFloat(newValue) : existingNpsEntry?.pass8_7 || 0,
           detr_less_6: columnId === 'column-5' ? parseFloat(newValue) : existingNpsEntry?.detr_less_6 || 0,
-          updatedBy: 'Akhil'
+          updatedBy: 'Akhil',
+          fieldsToBeUpdate:filedName
         };
   
         // Check if selectedFortnight is not null before proceeding

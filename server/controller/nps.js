@@ -42,7 +42,7 @@ export const updateNPS = async (req, res) => {
         salelocation: { $regex: new RegExp(req.body.storeLocation, "i") },
         createdDate: { $eq: new Date(req.body.createdDate) },
       },
-      updatableData
+      {$set:{}}
     );
 
     return res.status(200).json({ NPS: storedNPS });
