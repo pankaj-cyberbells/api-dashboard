@@ -101,6 +101,9 @@ try {
   const storedNPS = await NPS.aggregate([
     { $match: dateFilter },
     {
+      $sort: { createdDate: -1 } // Sort by createdDate in descending order
+    },
+    {
       $group: {
         _id: {
           salesrep: "$salesrep",
@@ -108,7 +111,11 @@ try {
         },
         totalAdv10_9: { $sum: "$adv10_9" },
         totalPass8_7: { $sum: "$pass8_7" },
-        totalDetrLess6: { $sum: "$detr_less_6" }
+        totalDetrLess6: { $sum: "$detr_less_6" },
+        createdDate: { $max: "$createdDate" }, 
+        createdAt: { $max: "$createdAt" }, 
+        updatedAt: { $max: "$updatedAt" }, 
+        mostRecentId: { $max: "$_id" } 
       }
     },
     {
@@ -118,12 +125,15 @@ try {
         salelocation: "$_id.salelocation",
         adv10_9: "$totalAdv10_9",
         pass8_7: "$totalPass8_7",
-        detr_less_6: "$totalDetrLess6"
+        detr_less_6: "$totalDetrLess6",
+        createdDate: "$createdDate", 
+        createdAt: "$createdAt", 
+        updatedAt: "$updatedAt", 
+        mostRecentId: "$mostRecentId" 
       }
     },
     { $sort: { salesrep: 1, salelocation: 1 } } // Optional: Sort by salesrep and salelocation
   ]);
-
   res.status(200).json(storedNPS);
 } catch (error) {
   console.log(error);
