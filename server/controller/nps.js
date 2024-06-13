@@ -35,7 +35,15 @@ export const updateNPS = async (req, res) => {
   const { id } = req.params;
   try {
     const updatableData = { ...req.body };
-    const storedNPS = await handleUpdate(NPS, { _id: id }, updatableData);
+    const storedNPS = await handleUpdate(
+      NPS,
+      {
+        salesrep: { $regex: new RegExp(req.body.salesrep, "i") },
+        salelocation: { $regex: new RegExp(req.body.storeLocation, "i") },
+        createdDate: { $eq: new Date(req.body.createdDate) },
+      },
+      updatableData
+    );
 
     return res.status(200).json({ NPS: storedNPS });
   } catch (error) {
@@ -78,70 +86,71 @@ export const getNPS = async (req, res) => {
 export const getAllNPS = async (req, res) => {
   const { startDate, endDate } = req.query;
 
-const parseDate = (dateStr) => {
-  const [day, month, year] = dateStr.trim().split("/");
-  const fullYear = year.length === 2 ? `20${year}` : year; // Convert two-digit year to four-digit year if necessary
-  return new Date(`${fullYear}-${month}-${day}`);
-};
-
-let dateFilter = {};
-
-if (startDate && endDate) {
-  dateFilter = {
-    createdDate: {
-      $gte: parseDate(startDate),
-      $lte: parseDate(endDate),
-    },
+  const parseDate = (dateStr) => {
+    const [day, month, year] = dateStr.trim().split("/");
+    const fullYear = year.length === 2 ? `20${year}` : year; // Convert two-digit year to four-digit year if necessary
+    return new Date(`${fullYear}-${month}-${day}`);
   };
-}else{
-  return res.status(404).json({ message: "start date and end date are required" });
-}
 
-try {
-  const storedNPS = await NPS.aggregate([
-    { $match: dateFilter },
-    {
-      $sort: { createdDate: -1 } // Sort by createdDate in descending order
-    },
-    {
-      $group: {
-        _id: {
-          salesrep: "$salesrep",
-          salelocation: "$salelocation"
-        },
-        totalAdv10_9: { $sum: "$adv10_9" },
-        totalPass8_7: { $sum: "$pass8_7" },
-        totalDetrLess6: { $sum: "$detr_less_6" },
-        createdDate: { $max: "$createdDate" }, 
-        createdAt: { $max: "$createdAt" }, 
-        updatedAt: { $max: "$updatedAt" }, 
-        mostRecentId: { $max: "$_id" } 
-      }
-    },
-    {
-      $project: {
-        _id: 0,
-        salesrep: "$_id.salesrep",
-        salelocation: "$_id.salelocation",
-        adv10_9: "$totalAdv10_9",
-        pass8_7: "$totalPass8_7",
-        detr_less_6: "$totalDetrLess6",
-        createdDate: "$createdDate", 
-        createdAt: "$createdAt", 
-        updatedAt: "$updatedAt", 
-        mostRecentId: "$mostRecentId" 
-      }
-    },
-    { $sort: { salesrep: 1, salelocation: 1 } } // Optional: Sort by salesrep and salelocation
-  ]);
-  res.status(200).json(storedNPS);
-} catch (error) {
-  console.log(error);
-  if (error.message === "Not Found") {
-    return res.status(404).json({ message: "No NPS found for this user." });
+  let dateFilter = {};
+
+  if (startDate && endDate) {
+    dateFilter = {
+      createdDate: {
+        $gte: parseDate(startDate),
+        $lte: parseDate(endDate),
+      },
+    };
   } else {
-    return res.status(500).json({ message: "Internal Server Error", error });
+    return res
+      .status(404)
+      .json({ message: "start date and end date are required" });
   }
-}
 
+  try {
+    const storedNPS = await NPS.aggregate([
+      { $match: dateFilter },
+      {
+        $sort: { createdDate: -1 }, // Sort by createdDate in descending order
+      },
+      {
+        $group: {
+          _id: {
+            salesrep: "$salesrep",
+            salelocation: "$salelocation",
+          },
+          totalAdv10_9: { $sum: "$adv10_9" },
+          totalPass8_7: { $sum: "$pass8_7" },
+          totalDetrLess6: { $sum: "$detr_less_6" },
+          createdDate: { $max: "$createdDate" },
+          createdAt: { $max: "$createdAt" },
+          updatedAt: { $max: "$updatedAt" },
+          mostRecentId: { $max: "$_id" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          salesrep: "$_id.salesrep",
+          salelocation: "$_id.salelocation",
+          adv10_9: "$totalAdv10_9",
+          pass8_7: "$totalPass8_7",
+          detr_less_6: "$totalDetrLess6",
+          createdDate: "$createdDate",
+          createdAt: "$createdAt",
+          updatedAt: "$updatedAt",
+          mostRecentId: "$mostRecentId",
+        },
+      },
+      { $sort: { salesrep: 1, salelocation: 1 } }, // Optional: Sort by salesrep and salelocation
+    ]);
+    res.status(200).json(storedNPS);
+  } catch (error) {
+    console.log(error);
+    if (error.message === "Not Found") {
+      return res.status(404).json({ message: "No NPS found for this user." });
+    } else {
+      return res.status(500).json({ message: "Internal Server Error", error });
+    }
+  }
 };
