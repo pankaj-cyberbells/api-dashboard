@@ -32,17 +32,19 @@ export const createNPS = async (req, res) => {
 };
 
 export const updateNPS = async (req, res) => {
-  const { id } = req.params;
+  const value = req.body[req.body.fieldsToBeUpdate];
+  const newData = {};
+  newData[req.body.fieldsToBeUpdate] = value;
+
   try {
-    const updatableData = { ...req.body };
-    const storedNPS = await handleUpdate(
-      NPS,
+    const storedNPS = await NPS.findOneAndUpdate(
       {
         salesrep: { $regex: new RegExp(req.body.salesrep, "i") },
         salelocation: { $regex: new RegExp(req.body.storeLocation, "i") },
         createdDate: { $eq: new Date(req.body.createdDate) },
       },
-      {$set:{}}
+      { $set: newData },
+      { new: true }
     );
 
     return res.status(200).json({ NPS: storedNPS });

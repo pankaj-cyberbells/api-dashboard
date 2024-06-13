@@ -53,7 +53,7 @@ router.get( "/data-by-store",  getDataByStore);
     router.get( "/nps/all", getAllNPS); 
     router.get( "/nps", getNPS);    //=========> request url should looks like this -----> http://localhost:5000/api/nps?salelocation=Warragul&salesrep=Nick Dawols&startDate=05/05/24&endDate=05/06/24
     router.post( "/nps", createNPS); //=========> request.body should looks like this -----> {  "salelocation":"Warragul","detr": 5,"ppn":3,"bundel":10,"tmb":12,"tyro":5,"websitebas": 5,"devicesecurity": 7}
-    router.patch( "/nps/:id", updateNPS); 
+    router.patch( "/nps", updateNPS); 
     // router.put( "/target/all", updateAllNPS); //========> don't send "salelocation" in request.body just send value need to be updated like this -----> { "detr": 5,"ppn":3,"bundel":10,"tmb":12,"tyro":5,"websitebas": 5,"devicesecurity": 7}
   
     router.delete( "/nps/:id", deleteNPS); 
