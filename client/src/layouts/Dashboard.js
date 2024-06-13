@@ -185,9 +185,9 @@ export default function Dashboard() {
 
   const forrmatDate = (date) => {
     const d = new Date(date);
-    let month = '' + (d.getMonth() + 1);
-    let day = '' + d.getDate();
-    const year = d.getFullYear();
+    let month = '' + (d.getUTCMonth() + 1); // Use getUTCMonth
+    let day = '' + d.getUTCDate(); // Use getUTCDate
+    const year = d.getUTCFullYear(); // Use getUTCFullYear
   
     if (month.length < 2) {
       month = '0' + month;
@@ -237,7 +237,7 @@ export default function Dashboard() {
         if (selectedFortnight !== null) {
           try {
             const createdAtFormatted = existingNpsEntry ? forrmatDate(existingNpsEntry.createdDate) : null;
-            console.log(createdAtFormatted,currentDate)
+            console.log(createdAtFormatted,currentDate,existingNpsEntry)
             if (existingNpsEntry && createdAtFormatted === currentDate) {
               await dispatch(updateNpsThunk({ npsData: npsValue }));
             } else {
