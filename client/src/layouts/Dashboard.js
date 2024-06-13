@@ -239,7 +239,7 @@ export default function Dashboard() {
             const createdAtFormatted = existingNpsEntry ? forrmatDate(existingNpsEntry.createdAt) : null;
             console.log(createdAtFormatted,currentDate)
             if (existingNpsEntry && createdAtFormatted === currentDate) {
-              await dispatch(updateNpsThunk({ npsId: existingNpsEntry.mostRecentId, npsData: npsValue }));
+              await dispatch(updateNpsThunk({ npsData: npsValue }));
             } else {
               await dispatch(createNpsThunk(npsValue));
             }
@@ -319,10 +319,10 @@ export default function Dashboard() {
         // Calculate NPS Score
         const NPSAdvPercentage = NPSVol !== 0 ? ((npsRow.adv10_9 / NPSVol) * 100).toFixed(2) : 0;
         const NPSDetrPercentage = NPSVol !== 0 ? ((npsRow.detr_less_6 / NPSVol) * 100).toFixed(2) : 0;
-        const NPSScore = (NPSAdvPercentage - NPSDetrPercentage).toFixed(2);
+        const NPSScore = Math.round(NPSAdvPercentage - NPSDetrPercentage);
             // Add NPS data to corresponding columns
             rowData[`column-${index + 1}`] = NPSVol; // Assuming 'NPS Score' 
-            rowData[`column-${index + 2}`] = `${NPSScore} %`;
+            rowData[`column-${index + 2}`] = NPSScore;
             rowData[`column-${index + 3}`] = npsRow.adv10_9;
             rowData[`column-${index + 4}`] = npsRow.pass8_7;
             rowData[`column-${index + 5}`] = npsRow.detr_less_6;
