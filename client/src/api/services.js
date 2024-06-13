@@ -142,9 +142,9 @@ export const getAllNps = async (startDate, endDate) => {
 };
 
 // Update NPS Data Service
-export const updateNps = async (npsId, npsData) => {
+export const updateNps = async ( npsData) => {
   try {
-    const response = await apiClient.patch(`${API_ROUTES.UPDATE_NPS}/${npsId}`, npsData);
+    const response = await apiClient.patch(`${API_ROUTES.UPDATE_NPS}`, npsData);
     return response.data;
   } catch (error) {
     throw error;
