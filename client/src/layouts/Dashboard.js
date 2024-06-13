@@ -34,7 +34,7 @@ export default function Dashboard() {
   const { target,  loading: targetLoading, error: targetError } = useSelector((state) => state.targets);
   const { npsData,  npsLoading,  npsError } = useSelector((state) => state.nps);
 
-  console.log(mutableData)
+  // console.log(mutableData)
   
     // Fetch targets when the selected tab changes
   useEffect(() => {
@@ -67,7 +67,7 @@ export default function Dashboard() {
  
   
   const formatDate = (date) => {
-    console.log(date);
+    // console.log(date);
     const day = String(date.getUTCDate()).padStart(2, '0');
     const month = String(date.getUTCMonth() + 1).padStart(2, '0');
     const year = String(date.getUTCFullYear()).slice(2); // Get last 2 digits of the year
@@ -183,8 +183,22 @@ export default function Dashboard() {
   };
  
 
-
+  const forrmatDate = (date) => {
+    const d = new Date(date);
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
   
+    if (month.length < 2) {
+      month = '0' + month;
+    }
+    if (day.length < 2) {
+      day = '0' + day;
+    }
+  
+    return [year, month, day].join('-');
+  };
+  const currentDate = forrmatDate(new Date());
   let isUpdating = false;
   const handleBlur = async (rowIndex, columnId) => {
     if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === columnId) {
@@ -209,7 +223,7 @@ export default function Dashboard() {
         const npsValue = {
           salesrep: rowData.salesrep,
           salelocation: selectedTab.value,
-          createdDate: formatforDate(new Date()),
+          createdDate: forrmatDate(new Date()),
           NPSVol: columnId === 'column-1' ? parseFloat(newValue) : existingNpsEntry?.NPSVol || 0,
           NPSScore: columnId === 'column-2' ? parseFloat(newValue) : existingNpsEntry?.NPSScore || 0,
           adv10_9: columnId === 'column-3' ? parseFloat(newValue) : existingNpsEntry?.adv10_9 || 0,
@@ -221,8 +235,10 @@ export default function Dashboard() {
         // Check if selectedFortnight is not null before proceeding
         if (selectedFortnight !== null) {
           try {
-            if (existingNpsEntry) {
-              await dispatch(updateNpsThunk({ npsId: existingNpsEntry._id, npsData: npsValue }));
+            const createdAtFormatted = existingNpsEntry ? forrmatDate(existingNpsEntry.createdAt) : null;
+            console.log(createdAtFormatted,currentDate)
+            if (existingNpsEntry && createdAtFormatted === currentDate) {
+              await dispatch(updateNpsThunk({ npsId: existingNpsEntry.mostRecentId, npsData: npsValue }));
             } else {
               await dispatch(createNpsThunk(npsValue));
             }
