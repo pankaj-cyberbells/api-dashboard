@@ -24,10 +24,10 @@ export const getAllNpsThunk = createAsyncThunk(
     }
   );
 
-export const updateNpsThunk = createAsyncThunk('nps/updateNps', async ({ npsId, npsData }, { rejectWithValue }) => {
+export const updateNpsThunk = createAsyncThunk('nps/updateNps', async ({  npsData }, { rejectWithValue }) => {
     console.log(npsData)
   try {
-    const response = await updateNps(npsId, npsData);
+    const response = await updateNps( npsData);
     return response;
   } catch (error) {
     return rejectWithValue(error.response.data);
