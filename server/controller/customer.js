@@ -1,7 +1,7 @@
 import Customer from "../models/customer.js";
 import { handleGet, handleGetAll } from "../utils/crudHelpers/Get.js";
 import { handleGroupByAggregate } from "../utils/crudHelpers/groupByAggregate.js";
-import { buildAggregationOperations, formatDate } from "../utils/index.js";
+import { buildAggregationOperations, changeFormatDateForFetchingData, formatDate } from "../utils/index.js";
 import { aggregateSalesDataByStaff, jsonData } from "../utils/modifyApiData.js";
 
 // export const getAll = async (req, res) => {
@@ -191,8 +191,25 @@ import { aggregateSalesDataByStaff, jsonData } from "../utils/modifyApiData.js";
 
 
 export const getAll=async (req,res)=>{
+  const { salelocation, startDate, endDate } = req.query;
   try {
-    const response= await aggregateSalesDataByStaff(jsonData,'all')
+    const headers = {
+      'Content-Type': 'application/json',
+      'token': '5AF49267-8C88-4C2C-8D69-7AB9B493F340'
+    };
+    const startdate = changeFormatDateForFetchingData(startDate);
+    const enddate = changeFormatDateForFetchingData(endDate);
+      // Fetch data from example.com
+      const datares = await fetch(`https://tcpsvr121.clickpos.net/ctime/ctimeapi/Sales/SaleDatafusion?startdate=${startdate}&enddate=${enddate}`, {headers});
+      
+      // Check if the request was successful
+      if (!datares.ok) {
+        throw new Error('Failed to fetch data from example.com');
+      }
+      
+      // Parse the JSON response
+      const alldata = await datares.json();
+    const response= await aggregateSalesDataByStaff(alldata,'all')
     return res.status(200).json( response);
   } catch (error) {
     return res.status(500).json({ message: "Internal Server Error" });
@@ -364,7 +381,30 @@ export const getTmbByQuery = async (req, res) => {
 export const getDataByStore = async (req, res)=>{
 try {
   const { salelocation, startDate, endDate } = req.query;
-  const response= await aggregateSalesDataByStaff(jsonData,salelocation)
+  if(!salelocation || !startDate || !endDate){
+    return res.status(200).json( []);
+  }
+  if(salelocation.includes("NaN") || startDate.includes("NaN") || endDate.includes("NaN")){
+    return res.status(200).json( []);
+  }
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    'token': '5AF49267-8C88-4C2C-8D69-7AB9B493F340'
+  };
+  const startdate = changeFormatDateForFetchingData(startDate);
+  const enddate = changeFormatDateForFetchingData(endDate);
+  
+    
+    const datares = await fetch(`https://tcpsvr121.clickpos.net/ctime/ctimeapi/Sales/SaleDatafusion?startdate=${startdate}&enddate=${enddate}`, {headers});
+    
+    // Check if the request was successful
+    if (!datares.ok) {
+      throw new Error('Failed to fetch data from example.com');
+    }
+    // Parse the JSON response
+    const alldata = await datares.json();
+  const response= await aggregateSalesDataByStaff(alldata,salelocation)
     return res.status(200).json( response);
 } catch (error) {
   res.status(500).json({ message: error.message });
