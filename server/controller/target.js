@@ -21,11 +21,9 @@ export const createTarget = async (req, res) => {
     });
   } catch (error) {
     if (error.message === "matched") {
-      return res
-        .status(409)
-        .json({
-          message: "Target already exists, may be with same store name",
-        });
+      return res.status(409).json({
+        message: "Target already exists, may be with same store name",
+      });
     } else {
       return res.status(500).json({ message: "Internal Server Error" });
     }
@@ -46,7 +44,10 @@ export const updateTarget = async (req, res) => {
 export const updateAllTarget = async (req, res) => {
   try {
     const updatableData = { ...req.body };
-    const targets = await Target.updateMany({ createdDate: { $eq: new Date(req.body.createdDate) }}, { $set: updatableData });
+    const targets = await Target.updateMany(
+      { createdDate: { $eq: new Date(req.body.createdDate) } },
+      { $set: updatableData }
+    );
 
     return res
       .status(200)
@@ -70,7 +71,7 @@ export const getTarget = async (req, res) => {
   try {
     const storedtarget = await Target.findOne({
       salelocation: { $regex: new RegExp(req.params.salelocation, "i") },
-      createdDate: { $eq: new Date(req.body.createdDate) }
+      createdDate: { $eq: new Date(req.body.createdDate) },
     });
 
     return res.status(200).json({ target: storedtarget });
@@ -86,8 +87,26 @@ export const getTarget = async (req, res) => {
 };
 
 export const getTargets = async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  const parseDate = (dateStr) => {
+    const [day, month, year] = dateStr.trim().split("/");
+    const fullYear = year.length === 2 ? `20${year}` : year; // Convert two-digit year to four-digit year if necessary
+    return new Date(`${fullYear}-${month}-${day}`);
+  };
   try {
-    const storedtarget = await Target.find();
+    let query;
+    if (startDate && endDate) {
+      query = {
+        createdDate: {
+          $gte: parseDate(startDate),
+          $lte: parseDate(endDate),
+        },
+      };
+    } else {
+      query = {};
+    }
+    const storedtarget = await Target.find(query);
 
     return res.status(200).json({ targets: storedtarget });
   } catch (error) {
