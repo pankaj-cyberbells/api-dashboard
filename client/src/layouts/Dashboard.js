@@ -34,18 +34,27 @@ export default function Dashboard() {
   const { target,  loading: targetLoading, error: targetError } = useSelector((state) => state.targets);
   const { npsData,  npsLoading,  npsError } = useSelector((state) => state.nps);
 
-  // console.log(mutableData)
+  console.log(mutableData)
   
     // Fetch targets when the selected tab changes
-  useEffect(() => {
+  // useEffect(() => {
    
+  //   let salelocation = selectedTab.value;
+  //   if (selectedTab.value === 'All Stores') {
+  //     salelocation = 'all-store';
+  //   } 
+  //   dispatch(getTargetThunk(salelocation));
+  // }, [dispatch, selectedTab.value]);
+  useEffect(() => {
+    console.log({fromDate,toDate})
     let salelocation = selectedTab.value;
     if (selectedTab.value === 'All Stores') {
       salelocation = 'all-store';
-    }
-    dispatch(getTargetThunk(salelocation));
-  }, [dispatch, selectedTab.value]);
-
+    } 
+    const formattedFromDate = formatDate(new Date(fromDate));
+    const formattedToDate = formatDate(new Date(toDate));
+        dispatch(getTargetThunk({ salelocation, startDate:formattedFromDate, endDate: formattedToDate}));
+      }, [dispatch,selectedTab, fromDate,toDate]);
  
 
 
@@ -133,12 +142,12 @@ export default function Dashboard() {
     const endDate = toDate.split('-').reverse().join('/');
     fetchDataForTab(selectedTab.value, startDate, endDate);
   };
-  useEffect(() => {
-    const startDate = fromDate.split('-').reverse().join('/');
-    const endDate = toDate.split('-').reverse().join('/');
-    dispatch(getAllNpsThunk({  startDate,  endDate }));
-    console.log({  startDate,  endDate })
-  }, [createNpsThunk,updateNpsThunk, dispatch, selectedFortnight]);
+  // useEffect(() => {
+  //   const startDate = fromDate.split('-').reverse().join('/');
+  //   const endDate = toDate.split('-').reverse().join('/');
+  //   dispatch(getAllNpsThunk({  startDate,  endDate }));
+  //   console.log({  startDate,  endDate })
+  // }, [createNpsThunk,updateNpsThunk, dispatch, selectedFortnight]);
   // console.log(startDate)
 
 // useEffect(() => {
@@ -153,7 +162,7 @@ export default function Dashboard() {
     fetchData()
   }, [fromDate,toDate]);
   useEffect(() => {
-    setMutableData(data.map(item => ({ ...item }))); // Create a mutable copy of data
+    setMutableData(data?.map(item => ({ ...item }))); // Create a mutable copy of data
   }, [data]);
 
   // if (loading) return <p>Loading...</p>;
@@ -306,7 +315,7 @@ export default function Dashboard() {
 
   
   
-  const rows = data.map(item => {
+  const rows = data?.map(item => {
     const rowData = { 'column-0': item.salesrep };
 
     // Find all matching NPS rows for the current salesrep
@@ -420,7 +429,9 @@ export default function Dashboard() {
         </Box>
         </Box>
         {loading || targetLoading ? (
-        <CircularProgress sx={{ margin: '20px auto', display: 'block' }} />
+       <Box sx={{ padding: '20px', textAlign: 'center', color: 'red' }}>
+       <CircularProgress sx={{ margin: '20px auto', display: 'block' }} />
+     </Box>
       ) : error || targetError ? (
         <Box sx={{ padding: '20px', textAlign: 'center', color: 'red' }}>
           {error || targetError}
@@ -455,13 +466,7 @@ export default function Dashboard() {
               </TableRow>
             </TableHead>
             <TableBody>
-            {noDataMessage ? (
-    <TableRow>
-      <TableCell colSpan={columns.length} align="center">
-        {noDataMessage}
-      </TableCell>
-    </TableRow>
-  ) : (  <>
+           
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, rowIndex) => (
                   !hideColumns || ( rowIndex !== rows.length ) ? ( // Conditionally render rows
                   <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex}>
@@ -529,8 +534,8 @@ export default function Dashboard() {
                     ) : null
                   ))}
                 </TableRow>
-                </>
-  )}
+                
+ 
               </TableBody>
           </Table>
         </TableContainer>

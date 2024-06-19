@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Box, Button, TextField, Typography,CircularProgress,FormControl, Select, MenuItem, InputLabel } from '@mui/material';
 import Navbar from '../components/Navbar';
 import './SetTargetForm.css'; // Import your CSS file for additional styling
-import { getTargetThunk, updateTargetThunk} from '../features/targetSlice';
+import { getTargetThunk, updateTargetThunk,createTargetThunk} from '../features/targetSlice';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import FortnightDropdown from '../components/FortnightDropdown';
 
 const SetTargetForm = () => {
   const [detrTarget, setDetrTarget] = useState('');
@@ -16,12 +17,27 @@ const SetTargetForm = () => {
   const [websiteBasTarget, setWebsiteBasTarget] = useState('');
   const [deviceSecurityTarget, setDeviceSecurityTarget] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('TRARALGON');
+  const [selectedFortnight, setSelectedFortnight] = useState();
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const dispatch = useDispatch();
   const { target, loading, error } = useSelector((state) => state.targets);
-
+console.log({fromDate,toDate})
+const formatDate = (date) => {
+  // console.log(date);
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const year = String(date.getUTCFullYear()).slice(2); // Get last 2 digits of the year
+  return `${day}/${month}/${year}`;
+};
   useEffect(() => {
-    dispatch(getTargetThunk(selectedLocation));
-  }, [dispatch,selectedLocation]);
+console.log({fromDate,toDate})
+const formattedFromDate = formatDate(new Date(fromDate));
+const formattedToDate = formatDate(new Date(toDate));
+    dispatch(getTargetThunk({ salelocation:selectedLocation, startDate:formattedFromDate, endDate: formattedToDate}));
+  }, [dispatch,selectedLocation, fromDate,toDate]);
+
+
   useEffect(() => {
     if (target ) {
       console.log(target);
@@ -30,52 +46,65 @@ const SetTargetForm = () => {
   }, [target]);
   useEffect(() => {
     if (target) {
-      setDetrTarget(target.detr || '');
-      setBundleTmbTarget(target.bundel || '');
-      setPpnTarget(target.ppn || '');
-      setTmbTarget(target.tmb || '');
-      setTyroTarget(target.tyro || '');
-      setWebsiteBasTarget(target.websitebas || '');
-      setDeviceSecurityTarget(target.devicesecurity || '');
-    }
-  }, [target]);
-
-//   const handleUpdateTarget = (event) => {
-//     event.preventDefault(); 
-//     dispatch(updateTargetThunk({ targetId: target._id, targetData: {
-//         // detr: detrTarget,
-//         detr: 6,
-//         bundel: bundleTmbTarget,
-//         ppn: ppnTarget,
-//         tmb: tmbTarget,
-//         tyro: tyroTarget,
-//         websitebas: websiteBasTarget,
-//         devicesecurity: deviceSecurityTarget,
-//       } }));
-//     // Repeat the above line for other target fields if needed
-//   };
-
-const handleUpdateTarget = async (event) => {
-    event.preventDefault();
-    const result = await dispatch(updateTargetThunk({
-      targetId: target._id,
-      targetData: {
-         salelocation: selectedLocation,
-        detr: 6,
-        bundel: bundleTmbTarget,
-        ppn: ppnTarget,
-        tmb: tmbTarget,
-        tyro: tyroTarget,
-        websitebas: websiteBasTarget,
-        devicesecurity: deviceSecurityTarget,
-      }
-    }));
-    console.log(result.meta)
-
-    if (result.meta.requestStatus === 'fulfilled') {
-      toast.success('Target set successfully!');
+      setDetrTarget(target?.detr || '');
+      setBundleTmbTarget(target?.bundel || '');
+      setPpnTarget(target?.ppn || '');
+      setTmbTarget(target?.tmb || '');
+      setTyroTarget(target?.tyro || '');
+      setWebsiteBasTarget(target?.websitebas || '');
+      setDeviceSecurityTarget(target?.devicesecurity || '');
     } else {
-      toast.error('Failed to set target. Please try again.');
+      setDetrTarget('');
+      setBundleTmbTarget('');
+      setPpnTarget('');
+      setTmbTarget('');
+      setTyroTarget('');
+      setWebsiteBasTarget('');
+      setDeviceSecurityTarget('');
+    }
+  }, [target, fromDate]);
+
+console.log(target,"target")
+
+  const handleUpdateTarget = async (event) => {
+    event.preventDefault();
+  
+    const targetData = {
+      createdDate: fromDate,
+      salelocation: selectedLocation,
+      detr: 6,
+      bundel: bundleTmbTarget,
+      ppn: ppnTarget,
+      tmb: tmbTarget,
+      tyro: tyroTarget,
+      websitebas: websiteBasTarget,
+      devicesecurity: deviceSecurityTarget,
+    };
+  
+   const formattedFromDate = formatDate(new Date(fromDate));
+  const formattedTargetCreatedDate = target ? formatDate(new Date(target.createdDate)) : null;
+
+  if (target && target._id && formattedTargetCreatedDate === formattedFromDate) {
+      // Update existing target
+      const result = await dispatch(updateTargetThunk({
+        targetId: target._id,
+        targetData,
+      }));
+  
+      if (result.meta.requestStatus === 'fulfilled') {
+        toast.success('Target updated successfully!');
+      } else {
+        toast.error('Failed to update target. Please try again.');
+      }
+    } else {
+      // Create new target
+      const result = await dispatch(createTargetThunk(targetData));
+  
+      if (result.meta.requestStatus === 'fulfilled') {
+        toast.success('Target created successfully!');
+      } else {
+        toast.error('Failed to create target. Please try again.');
+      }
     }
   };
   return (
@@ -90,9 +119,18 @@ const handleUpdateTarget = async (event) => {
         flexDirection="column"
         padding="20px"
       >
-        <Typography variant="h4" component="h1" gutterBottom>
-          Set Targets
-        </Typography>
+       <Box display="flex" justifyContent="center" alignItems="center" width="100%" mb={2}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Set Targets
+          </Typography>
+          <FortnightDropdown
+            selectedFortnight={selectedFortnight}
+            setSelectedFortnight={setSelectedFortnight}
+            setFromDate={setFromDate}
+            setToDate={setToDate}
+          />
+        </Box>
+       
         {loading ? (
           <CircularProgress />
         ) : error ? (
@@ -103,6 +141,7 @@ const handleUpdateTarget = async (event) => {
           </Typography>
         ) : (
           <form className="form-container" onSubmit={handleUpdateTarget}>
+            
             <FormControl variant="outlined" fullWidth margin="normal">
               <InputLabel>Select Location</InputLabel>
               <Select
@@ -116,6 +155,7 @@ const handleUpdateTarget = async (event) => {
                 <MenuItem value="TORQUAY">TORQUAY</MenuItem>
               </Select>
             </FormControl>
+           
             {/* <TextField
               label="DETR Target"
               type="number"

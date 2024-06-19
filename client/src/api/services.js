@@ -29,11 +29,19 @@ export const AllStoreData = async (startDate, endDate) => {
   }
 };
 
+export const createTarget = async (targetData) => {
+  try {
+    const response = await apiClient.post(API_ROUTES.CREATE_TARGET, targetData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
-export const getTarget = async (salelocation) => {
+export const getTarget = async (salelocation , startDate, endDate) => {
   console.log(salelocation,"kk")
   try {
-    const response = await apiClient.get(`${API_ROUTES.GET_TARGET}/${salelocation}`);
+    const response = await apiClient.get(`${API_ROUTES.GET_TARGET}?salelocation=${salelocation}&startDate=${startDate}&endDate=${endDate}`);
     console.log(response.data.target,"kk")
     return response.data.target;
   } catch (error) {

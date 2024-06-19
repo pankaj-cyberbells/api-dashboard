@@ -1,29 +1,29 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
-//   createTarget,
+  createTarget,
   getTarget,
   updateTarget,
   deleteTarget,
 } from '../api/services';
 
 // Async thunks
-// export const createTargetThunk = createAsyncThunk(
-//   'targets/createTarget',
-//   async (targetData, thunkAPI) => {
-//     try {
-//       const data = await createTarget(targetData);
-//       return data;
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(error.response.data);
-//     }
-//   }
-// );
+export const createTargetThunk = createAsyncThunk(
+  'targets/createTarget',
+  async (targetData, thunkAPI) => {
+    try {
+      const data = await createTarget(targetData);
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
 
 export const getTargetThunk = createAsyncThunk(
   'targets/getTarget',
-  async (salelocation, thunkAPI) => { // Assuming no parameters for getTarget
+  async ({ salelocation, startDate, endDate }, thunkAPI) => { // Assuming no parameters for getTarget
     try {
-      const data = await getTarget(salelocation);
+      const data = await getTarget(salelocation, startDate, endDate);
       return data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
