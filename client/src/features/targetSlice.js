@@ -68,18 +68,18 @@ const targetSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-    //   .addCase(createTargetThunk.pending, (state) => {
-    //     state.loading = true;
-    //     state.error = null;
-    //   })
-    //   .addCase(createTargetThunk.fulfilled, (state, action) => {
-    //     state.loading = false;
-    //     state.targets.push(action.payload);
-    //   })
-    //   .addCase(createTargetThunk.rejected, (state, action) => {
-    //     state.loading = false;
-    //     state.error = action.payload;
-    //   })
+      .addCase(createTargetThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createTargetThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.targets.push(action.payload);
+      })
+      .addCase(createTargetThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       .addCase(getTargetThunk.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -90,7 +90,7 @@ const targetSlice = createSlice({
       })
       .addCase(getTargetThunk.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload.message;
       })
       .addCase(updateTargetThunk.pending, (state) => {
         state.loading = true;
@@ -121,7 +121,7 @@ const targetSlice = createSlice({
       })
       .addCase(deleteTargetThunk.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload.message;
       });
   },
 });
