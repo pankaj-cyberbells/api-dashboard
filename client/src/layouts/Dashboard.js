@@ -134,7 +134,7 @@ export default function Dashboard() {
     // setToDate(formattedforTomDate);
     fetchDataForTab(selectedTabValue, formattedFromDate, formattedToDate);
   };
-
+console.log(error,targetError)
 
   // Fetch data based on current date range and tab
   const fetchData = () => {
@@ -432,9 +432,9 @@ export default function Dashboard() {
        <Box sx={{ padding: '20px', textAlign: 'center', color: 'red' }}>
        <CircularProgress sx={{ margin: '20px auto', display: 'block' }} />
      </Box>
-      ) : error || targetError ? (
+      ) : error  ? (
         <Box sx={{ padding: '20px', textAlign: 'center', color: 'red' }}>
-          {error || targetError}
+          {error }
         </Box>
       ) : (
         <>

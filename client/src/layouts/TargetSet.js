@@ -133,13 +133,16 @@ console.log(target,"target")
        
         {loading ? (
           <CircularProgress />
-        ) : error ? (
-          <Typography color="error">
-            {error.response?.status === 404
-              ? 'Target data not found. Please check the endpoint.'
-              : 'An error occurred. Please try again.'}
-          </Typography>
-        ) : (
+        ) : 
+        // error ? (
+        //   <Typography color="error">
+        //     {error.response?.status === 404
+        //       ? 'Target data not found. Please check the endpoint.'
+        //       : 'An error occurred. Please try again.'}
+        //   </Typography>
+        // ) :
+        
+        (
           <form className="form-container" onSubmit={handleUpdateTarget}>
             
             <FormControl variant="outlined" fullWidth margin="normal">
