@@ -75,10 +75,11 @@ const targetSlice = createSlice({
       .addCase(createTargetThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.targets.push(action.payload);
+        state.error = null;
       })
       .addCase(createTargetThunk.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload.message;
       })
       .addCase(getTargetThunk.pending, (state) => {
         state.loading = true;
@@ -87,6 +88,7 @@ const targetSlice = createSlice({
       .addCase(getTargetThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.target = action.payload;
+        state.error = null;
       })
       .addCase(getTargetThunk.rejected, (state, action) => {
         state.loading = false;
@@ -100,10 +102,12 @@ const targetSlice = createSlice({
         state.loading = false;
         const index = state.targets.findIndex(
           (target) => target.id === action.payload.id
+        
         );
         if (index !== -1) {
           state.targets[index] = action.payload;
         }
+        
       })
       .addCase(updateTargetThunk.rejected, (state, action) => {
         state.loading = false;
