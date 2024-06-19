@@ -43,9 +43,14 @@ export const updateTarget = async (req, res) => {
 };
 export const updateAllTarget = async (req, res) => {
   try {
+    const parseDate = (dateStr) => {
+      const [day, month, year] = dateStr.trim().split("/");
+      const fullYear = year.length === 2 ? `20${year}` : year; // Convert two-digit year to four-digit year if necessary
+      return new Date(`${fullYear}-${month}-${day}`);
+    };
     const updatableData = { ...req.body };
     const targets = await Target.updateMany(
-      { createdDate: { $eq: new Date(req.body.createdDate) } },
+      { createdDate: { $eq: parseDate(req.body.createdDate) } },
       { $set: updatableData }
     );
 
@@ -68,10 +73,19 @@ export const deleteTarget = async (req, res) => {
 };
 
 export const getTarget = async (req, res) => {
+  const {salelocation, startDate, endDate } = req.query;
+  const parseDate = (dateStr) => {
+    const [day, month, year] = dateStr.trim().split("/");
+    const fullYear = year.length === 2 ? `20${year}` : year; // Convert two-digit year to four-digit year if necessary
+    return new Date(`${fullYear}-${month}-${day}`);
+  };
   try {
     const storedtarget = await Target.findOne({
-      salelocation: { $regex: new RegExp(req.params.salelocation, "i") },
-      createdDate: { $eq: new Date(req.body.createdDate) },
+      salelocation: { $regex: new RegExp(salelocation, "i") },
+      createdDate: {
+        $gte: parseDate(startDate),
+        $lte: parseDate(endDate),
+      },
     });
 
     return res.status(200).json({ target: storedtarget });
