@@ -28,7 +28,8 @@ const targetSchema = mongoose.Schema({
   devicesecurity: {
     type: Number,
     
-  }
+  },
+  createdDate: { type: Date,  required: true },
 }, { timestamps: true });
 
 const Target = mongoose.model('Target', targetSchema);

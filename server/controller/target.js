@@ -9,7 +9,10 @@ export const createTarget = async (req, res) => {
   try {
     const storedTarget = await handleCreate(
       Target,
-      { salelocation: { $regex: new RegExp(req.body.salelocation, 'i') } },
+      {
+        salelocation: { $regex: new RegExp(req.body.salelocation, "i") },
+        createdDate: { $eq: new Date(req.body.createdDate) },
+      },
       creatableData
     );
     return res.status(201).json({
@@ -20,7 +23,9 @@ export const createTarget = async (req, res) => {
     if (error.message === "matched") {
       return res
         .status(409)
-        .json({ message: "Target already exists, may be with same store name" });
+        .json({
+          message: "Target already exists, may be with same store name",
+        });
     } else {
       return res.status(500).json({ message: "Internal Server Error" });
     }
@@ -41,7 +46,7 @@ export const updateTarget = async (req, res) => {
 export const updateAllTarget = async (req, res) => {
   try {
     const updatableData = { ...req.body };
-    const targets = await Target.updateMany({}, { $set: updatableData });
+    const targets = await Target.updateMany({ createdDate: { $eq: new Date(req.body.createdDate) }}, { $set: updatableData });
 
     return res
       .status(200)
@@ -63,8 +68,11 @@ export const deleteTarget = async (req, res) => {
 
 export const getTarget = async (req, res) => {
   try {
-    const storedtarget = await Target.findOne({ salelocation: { $regex: new RegExp(req.params.salelocation, 'i') } });
-  
+    const storedtarget = await Target.findOne({
+      salelocation: { $regex: new RegExp(req.params.salelocation, "i") },
+      createdDate: { $eq: new Date(req.body.createdDate) }
+    });
+
     return res.status(200).json({ target: storedtarget });
   } catch (error) {
     if (error.message === "Not Found") {
@@ -80,7 +88,7 @@ export const getTarget = async (req, res) => {
 export const getTargets = async (req, res) => {
   try {
     const storedtarget = await Target.find();
-  
+
     return res.status(200).json({ targets: storedtarget });
   } catch (error) {
     if (error.message === "Not Found") {
