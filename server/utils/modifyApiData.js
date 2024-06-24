@@ -1863,10 +1863,12 @@ export async function aggregateSalesDataByStaff(data, location) {
     "Upgrade & Protect": "upgrade",
     "DPC Mobile / Tablet": "dcpcount",
     "Handset/Plan GP": "gpvalue",
+    "accessory GP total":"accGP"
   };
 
   // Get all product types
   const allProductTypes = getAllProductTypes(data);
+  // console.log(allProductTypes);
 
   // Sort the data by StoreName in ascending order
   data.sort((a, b) => a.StoreName.localeCompare(b.StoreName));
@@ -1901,7 +1903,7 @@ export async function aggregateSalesDataByStaff(data, location) {
       staffAggregations[key].SaleValue += sale.SaleValue;
       const mappedType =
         productTypeMapping[sale.ProductType] || sale.ProductType;
-        if (mappedType === "gpvalue") {
+        if (mappedType === "gpvalue" ||mappedType === "accGP" ) {
           staffAggregations[key][mappedType] += sale.SaleValue;
         } else {
           staffAggregations[key][mappedType] += sale.SaleCount;
