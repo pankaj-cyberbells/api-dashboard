@@ -142,12 +142,12 @@ console.log(error,targetError)
     const endDate = toDate.split('-').reverse().join('/');
     fetchDataForTab(selectedTab.value, startDate, endDate);
   };
-  // useEffect(() => {
-  //   const startDate = fromDate.split('-').reverse().join('/');
-  //   const endDate = toDate.split('-').reverse().join('/');
-  //   dispatch(getAllNpsThunk({  startDate,  endDate }));
-  //   console.log({  startDate,  endDate })
-  // }, [createNpsThunk,updateNpsThunk, dispatch, selectedFortnight]);
+  useEffect(() => {
+    const startDate = fromDate.split('-').reverse().join('/');
+    const endDate = toDate.split('-').reverse().join('/');
+    dispatch(getAllNpsThunk({  startDate,  endDate }));
+    console.log({  startDate,  endDate })
+  }, [createNpsThunk,updateNpsThunk, dispatch, selectedFortnight]);
   // console.log(startDate)
 
 // useEffect(() => {
@@ -296,7 +296,7 @@ console.log(error,targetError)
   `Website BAS (${target?.websitebas || 'N/A'})`,
   `Device Security($10/m) (${target?.devicesecurity || 'N/A'})`,
   'Outright Mobile/Tablet Inc Prepaid',
-  'DCP Mobile/Tablet',
+  'DPC Mobile/Tablet',
   'Belong NBN',
   'Smart Watch',
   'Acc GP',
@@ -346,9 +346,11 @@ console.log(error,targetError)
     rowData['column-7'] = item.bundelnewcount;
     rowData['column-8'] = item.tmbcount;
     rowData['column-9'] = item.upgrade;
+    // rowData['column-10'] = item.tyro;
     rowData['column-13'] = item.outriCount;
     rowData['column-14'] = item.dcpcount;
     rowData['column-15'] = item['Belong NBN'];
+    rowData['column-17'] = item.accGP;
     rowData['column-18'] = item.gpvalue;
     rowData['column-19'] = parseFloat(item.SaleValue).toFixed(2);
 
