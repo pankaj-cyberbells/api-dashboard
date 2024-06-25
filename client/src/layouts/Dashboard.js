@@ -19,7 +19,7 @@ export default function Dashboard() {
 
     // State variables
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [selectedTab, setSelectedTab] = useState({ index: 1, value: 'Traralgon' });
   const [editingCell, setEditingCell] = useState(null); // To track the cell being edited
   const [mutableData, setMutableData] = useState([]); // To hold a mutable copy of data
@@ -618,7 +618,7 @@ console.log(error,targetError)
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[ 25,50, 100]}
+          rowsPerPageOptions={[25,50, 100]}
           component="div"
           count={rows.length}
           rowsPerPage={rowsPerPage}
