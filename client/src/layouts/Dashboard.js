@@ -207,7 +207,7 @@ console.log(error,targetError)
   
     return [year, month, day].join('-');
   };
-  const currentDate = forrmatDate(new Date());
+  const currentDateS = forrmatDate(new Date());
   let isUpdating = false;
   const handleBlur = async (rowIndex, columnId) => {
     if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === columnId) {
@@ -228,7 +228,12 @@ console.log(error,targetError)
   
         const rowData = newData[rowIndex];
         const existingNpsEntry = npsData?.find(entry => entry.salesrep === rowData.salesrep);
-        const filedName=columnId === 'column-1'?"NPSVol" :columnId === 'column-2'?"NPSScore":columnId === 'column-3'?"adv10_9":columnId === 'column-4'?"pass8_7":columnId === 'column-5' ?"detr_less_6":null; 
+        const fieldName = columnId === 'column-1' ? "NPSVol" :
+                          columnId === 'column-2' ? "NPSScore" :
+                          columnId === 'column-3' ? "adv10_9" :
+                          columnId === 'column-4' ? "pass8_7" :
+                          columnId === 'column-5' ? "detr_less_6" : null;
+  
         const npsValue = {
           salesrep: rowData.salesrep,
           salelocation: selectedTab.value,
@@ -239,32 +244,34 @@ console.log(error,targetError)
           pass8_7: columnId === 'column-4' ? parseFloat(newValue) : existingNpsEntry?.pass8_7 || 0,
           detr_less_6: columnId === 'column-5' ? parseFloat(newValue) : existingNpsEntry?.detr_less_6 || 0,
           updatedBy: 'Akhil',
-          fieldsToBeUpdate:filedName
+          fieldsToBeUpdate: fieldName
         };
   
         // Check if selectedFortnight is not null before proceeding
         if (selectedFortnight !== null) {
           try {
             const createdAtFormatted = existingNpsEntry ? forrmatDate(existingNpsEntry.createdDate) : null;
-            console.log(createdAtFormatted,currentDate,existingNpsEntry)
-            if (existingNpsEntry && createdAtFormatted === currentDate) {
-              await dispatch(updateNpsThunk({ npsData: npsValue }));
-            } else {
-              await dispatch(createNpsThunk(npsValue));
-            }
+            const currentDate = formatDate(new Date());
+            const formattedFromDate = formatDate(new Date(fromDate));
+            const formattedToDate = formatDate(new Date(toDate));
             
-        // Add logging to check the values of fromDate and toDate
-        
-        
-        if (fromDate && toDate) {
-          const formattedFromDate = formatDate(new Date(fromDate));
-          const formattedToDate = formatDate(new Date(toDate));
-          console.log('fromDate:', formattedFromDate);
-        console.log('toDate:', formattedToDate);
-          await dispatch(getAllNpsThunk({ startDate: formattedFromDate, endDate: formattedToDate }));
-        } else {
-          console.error('fromDate or toDate is undefined:', { fromDate, toDate });
-        }
+  
+            // Check if current date is within the range of fromDate to toDate
+            if (currentDate >= formattedFromDate && currentDate <= formattedToDate) {
+              console.log(createdAtFormatted === currentDate)
+              if (existingNpsEntry && createdAtFormatted === currentDateS) {
+
+                await dispatch(updateNpsThunk({ npsData: npsValue }));
+              } else {
+                await dispatch(createNpsThunk(npsValue));
+              }
+  
+              // Fetch the updated NPS data
+              await dispatch(getAllNpsThunk({ startDate: formattedFromDate, endDate: formattedToDate }));
+            } else {
+              // Show an alert if the current date is not within the range
+              alert('Current date is not within the Current fortnight range. You dont change previuos fortnight NPS .');
+            }
           } catch (error) {
             console.error('Error updating or creating NPS data:', error);
           } finally {
@@ -277,6 +284,74 @@ console.log(error,targetError)
       }
     }
   };
+  // const handleBlur = async (rowIndex, columnId) => {
+  //   if (editingCell && editingCell.rowIndex === rowIndex && editingCell.columnId === columnId) {
+  //     if (isUpdating) {
+  //       return;
+  //     }
+  
+  //     const newData = [...mutableData];
+  //     const originalValue = data[rowIndex][columnId];
+  //     const newValue = newData[rowIndex][columnId];
+  
+  //     if (newValue !== originalValue) {
+  //       isUpdating = true;
+  
+  //       newData[rowIndex][columnId] = newValue;
+  //       setMutableData(newData);
+  //       setEditingCell(null);
+  
+  //       const rowData = newData[rowIndex];
+  //       const existingNpsEntry = npsData?.find(entry => entry.salesrep === rowData.salesrep);
+  //       const filedName=columnId === 'column-1'?"NPSVol" :columnId === 'column-2'?"NPSScore":columnId === 'column-3'?"adv10_9":columnId === 'column-4'?"pass8_7":columnId === 'column-5' ?"detr_less_6":null; 
+  //       const npsValue = {
+  //         salesrep: rowData.salesrep,
+  //         salelocation: selectedTab.value,
+  //         createdDate: forrmatDate(new Date()),
+  //         NPSVol: columnId === 'column-1' ? parseFloat(newValue) : existingNpsEntry?.NPSVol || 0,
+  //         NPSScore: columnId === 'column-2' ? parseFloat(newValue) : existingNpsEntry?.NPSScore || 0,
+  //         adv10_9: columnId === 'column-3' ? parseFloat(newValue) : existingNpsEntry?.adv10_9 || 0,
+  //         pass8_7: columnId === 'column-4' ? parseFloat(newValue) : existingNpsEntry?.pass8_7 || 0,
+  //         detr_less_6: columnId === 'column-5' ? parseFloat(newValue) : existingNpsEntry?.detr_less_6 || 0,
+  //         updatedBy: 'Akhil',
+  //         fieldsToBeUpdate:filedName
+  //       };
+  
+  //       // Check if selectedFortnight is not null before proceeding
+  //       if (selectedFortnight !== null) {
+  //         try {
+  //           const createdAtFormatted = existingNpsEntry ? forrmatDate(existingNpsEntry.createdDate) : null;
+  //           console.log(createdAtFormatted,currentDate,existingNpsEntry)
+  //           if (existingNpsEntry && createdAtFormatted === currentDate) {
+  //             await dispatch(updateNpsThunk({ npsData: npsValue }));
+  //           } else {
+  //             await dispatch(createNpsThunk(npsValue));
+  //           }
+            
+  //       // Add logging to check the values of fromDate and toDate
+        
+        
+  //       if (fromDate && toDate) {
+  //         const formattedFromDate = formatDate(new Date(fromDate));
+  //         const formattedToDate = formatDate(new Date(toDate));
+  //         console.log('fromDate:', formattedFromDate);
+  //       console.log('toDate:', formattedToDate);
+  //         await dispatch(getAllNpsThunk({ startDate: formattedFromDate, endDate: formattedToDate }));
+  //       } else {
+  //         console.error('fromDate or toDate is undefined:', { fromDate, toDate });
+  //       }
+  //         } catch (error) {
+  //           console.error('Error updating or creating NPS data:', error);
+  //         } finally {
+  //           isUpdating = false;
+  //         }
+  //       } else {
+  //         // Show an alert if selectedFortnight is null
+  //         alert('Please select a fortnight to update or create data.');
+  //       }
+  //     }
+  //   }
+  // };
 
 
  
@@ -299,6 +374,7 @@ console.log(error,targetError)
   'DPC Mobile/Tablet',
   'Belong NBN',
   'Smart Watch',
+  'Device Protect to Hand/Tab DPC (50%)',
   'Acc GP',
   'Handset/Plan GP',
   'Total GP'
@@ -350,9 +426,9 @@ console.log(error,targetError)
     rowData['column-13'] = item.outriCount;
     rowData['column-14'] = item.dcpcount;
     rowData['column-15'] = item['Belong NBN'];
-    rowData['column-17'] = item.accGP;
-    rowData['column-18'] = item.gpvalue;
-    rowData['column-19'] = parseFloat(item.SaleValue).toFixed(2);
+    rowData['column-18'] = item.accGP;
+    rowData['column-19'] = item.gpvalue;
+    rowData['column-20'] = parseFloat(item.SaleValue).toFixed(2);
 
     return rowData;
 });
@@ -542,7 +618,7 @@ console.log(error,targetError)
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[10, 25, 100]}
+          rowsPerPageOptions={[ 25,50, 100]}
           component="div"
           count={rows.length}
           rowsPerPage={rowsPerPage}
