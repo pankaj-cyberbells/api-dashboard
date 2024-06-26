@@ -1863,6 +1863,7 @@ export async function aggregateSalesDataByStaff(data, location) {
     "Upgrade & Protect": "upgrade",
     "DPC Mobile / Tablet": "dcpcount",
     "Handset/Plan GP": "gpvalue",
+    "Smart watch": "smartWatchCount",
     "accessory GP total":"accGP"
   };
 
