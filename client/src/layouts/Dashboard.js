@@ -426,6 +426,7 @@ console.log(error,targetError)
     rowData['column-13'] = item.outriCount;
     rowData['column-14'] = item.dcpcount;
     rowData['column-15'] = item['Belong NBN'];
+    rowData['column-16'] = item.smartWatchCount
     rowData['column-18'] = item.accGP;
     rowData['column-19'] = item.gpvalue;
     rowData['column-20'] = parseFloat(item.SaleValue).toFixed(2);
