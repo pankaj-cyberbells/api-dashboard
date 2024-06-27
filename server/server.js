@@ -6,7 +6,7 @@ import { fetchAndStoreData } from "./utils/cron.js";
 import cron from "node-cron"
 import * as dotenv from "dotenv"
 dotenv.config()
-const port=process.env.PORT || 5001;
+const port=process.env.PORT || 5002;
 const app=express();
 
 
