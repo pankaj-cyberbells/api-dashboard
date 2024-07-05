@@ -416,17 +416,22 @@ console.log(error,targetError)
         // If no matching NPS rows are found, set default values or leave empty
         rowData['column-1'] = ''
     }
+    const stayConnectedCount = item['Stay Connected'] || 0;
+    const upgradeProtectCount = item.upgrade || 0;
+    const dpcCount = item.dcpcount || 1; // Assuming 1 to avoid division by zero
+    const column17Value = ((stayConnectedCount + upgradeProtectCount) / dpcCount * 100).toFixed(2);
 
     // Add other columns from the 'data' object as needed
     rowData['column-6'] = item.pnncount;
     rowData['column-7'] = item.bundelnewcount;
     rowData['column-8'] = item.tmbcount;
     rowData['column-9'] = item.upgrade;
-    // rowData['column-10'] = item.tyro;
+    rowData['column-10'] = item.tyro;
     rowData['column-13'] = item.outriCount;
     rowData['column-14'] = item.dcpcount;
     rowData['column-15'] = item['Belong NBN'];
-    rowData['column-16'] = item.smartWatchCount
+    rowData['column-16'] = item.smartWatchCount;
+    rowData['column-17'] = column17Value;
     rowData['column-18'] = item.accGP;
     rowData['column-19'] = item.gpvalue;
     rowData['column-20'] = parseFloat(item.SaleValue).toFixed(2);

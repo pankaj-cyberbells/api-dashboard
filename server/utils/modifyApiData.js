@@ -1864,7 +1864,8 @@ export async function aggregateSalesDataByStaff(data, location) {
     "DPC Mobile / Tablet": "dcpcount",
     "Handset/Plan GP": "gpvalue",
     "Smart watch": "smartWatchCount",
-    "accessory GP total":"accGP"
+    "accessory GP total":"accGP",
+    "Tyro Plan":"tyro"
   };
 
   // Get all product types
