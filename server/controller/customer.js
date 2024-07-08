@@ -2,7 +2,7 @@ import Customer from "../models/customer.js";
 import { handleGet, handleGetAll } from "../utils/crudHelpers/Get.js";
 import { handleGroupByAggregate } from "../utils/crudHelpers/groupByAggregate.js";
 import { buildAggregationOperations, changeFormatDateForFetchingData, formatDate } from "../utils/index.js";
-import { aggregateSalesDataByStaff, jsonData } from "../utils/modifyApiData.js";
+import { aggregateSalesDataByStaff} from "../utils/modifyApiData.js";
 
 // export const getAll = async (req, res) => {
 
