@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import FortnightDropdown from '../components/FortnightDropdown';
 
 const SetTargetForm = () => {
-  const [detrTarget, setDetrTarget] = useState('');
+  const [dpcTarget, setDpcTarget] = useState('');
   const [bundleTmbTarget, setBundleTmbTarget] = useState('');
   const [ppnTarget, setPpnTarget] = useState('');
   const [tmbTarget, setTmbTarget] = useState('');
@@ -46,7 +46,7 @@ const formattedToDate = formatDate(new Date(toDate));
   }, [target]);
   useEffect(() => {
     if (target) {
-      setDetrTarget(target?.detr || '');
+      setDpcTarget(target?.dpc || '');
       setBundleTmbTarget(target?.bundel || '');
       setPpnTarget(target?.ppn || '');
       setTmbTarget(target?.tmb || '');
@@ -54,7 +54,7 @@ const formattedToDate = formatDate(new Date(toDate));
       setWebsiteBasTarget(target?.websitebas || '');
       setDeviceSecurityTarget(target?.devicesecurity || '');
     } else {
-      setDetrTarget('');
+      setDpcTarget('');
       setBundleTmbTarget('');
       setPpnTarget('');
       setTmbTarget('');
@@ -72,7 +72,7 @@ console.log(target,"target")
     const targetData = {
       createdDate: fromDate,
       salelocation: selectedLocation,
-      detr: 6,
+      dpc: dpcTarget,
       bundel: bundleTmbTarget,
       ppn: ppnTarget,
       tmb: tmbTarget,
@@ -159,15 +159,15 @@ console.log(target,"target")
               </Select>
             </FormControl>
            
-            {/* <TextField
-              label="DETR Target"
+            <TextField
+              label="Hand/Tab DPC Target"
               type="number"
-              value={detrTarget}
-              onChange={(e) => setDetrTarget(e.target.value)}
+              value={dpcTarget}
+              onChange={(e) => setDpcTarget(e.target.value)}
               variant="outlined"
               fullWidth
               margin="normal"
-            /> */}
+            />
             <TextField
               label="Bundle New Target"
               type="number"

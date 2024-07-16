@@ -357,16 +357,16 @@ console.log(error,targetError)
  
   const headerNames = [
     selectedTab.value,
-  'NPSVol',
+  'NPS Vol',
   'NPS Score',
-  'adv 10-9',
+  'Adv 10-9',
   'Pass 8-7',
-  'Detr<6',
+  'Detr <6',
   // `Detr (${target?.detr || 'N/A'})`,
   `PPN (${target?.ppn || 'N/A'})`,
   `Bundle New (${target?.bundel || 'N/A'})`,
   `TMB (${target?.tmb || 'N/A'})`,
-  'Upgrade & Protect',
+  'Device Protection',
   `Tyro (${target?.tyro || 'N/A'})`,
   `Website BAS (${target?.websitebas || 'N/A'})`,
   `Device Security($10/m) (${target?.devicesecurity || 'N/A'})`,
@@ -374,7 +374,8 @@ console.log(error,targetError)
   'DPC Mobile/Tablet',
   'Belong NBN',
   'Smart Watch',
-  'Device Protect to Hand/Tab DPC (50%)',
+  `Device Protect to Hand/Tab DPC (${target?.dpc || 'N/A'}%)`,
+  'Accessory GP to Handset Sales',
   'Acc GP',
   'Handset/Plan GP',
   'Total GP'
@@ -391,59 +392,83 @@ console.log(error,targetError)
 
   
   
-  const rows = data?.map(item => {
-    const rowData = { 'column-0': item.salesrep };
+    const rows = data?.map(item => {
+      const rowData = { 'column-0': item.salesrep };
 
-    // Find all matching NPS rows for the current salesrep
-    const matchingNpsRows = npsData?.filter(npsItem => npsItem.salesrep === item.salesrep);
-    if (matchingNpsRows?.length > 0) {
-        matchingNpsRows.forEach((npsRow, index) => {
-           // Calculate NPSVol
-        const NPSVol = npsRow.adv10_9 + npsRow.pass8_7 + npsRow.detr_less_6;
+      // Find all matching NPS rows for the current salesrep
+      const matchingNpsRows = npsData?.filter(npsItem => npsItem.salesrep === item.salesrep);
+      if (matchingNpsRows?.length > 0) {
+          matchingNpsRows.forEach((npsRow, index) => {
+            // Calculate NPSVol
+          const NPSVol = npsRow.adv10_9 + npsRow.pass8_7 + npsRow.detr_less_6;
 
-        // Calculate NPS Score
-        const NPSAdvPercentage = NPSVol !== 0 ? ((npsRow.adv10_9 / NPSVol) * 100).toFixed(2) : 0;
-        const NPSDetrPercentage = NPSVol !== 0 ? ((npsRow.detr_less_6 / NPSVol) * 100).toFixed(2) : 0;
-        const NPSScore = Math.round(NPSAdvPercentage - NPSDetrPercentage);
-            // Add NPS data to corresponding columns
-            rowData[`column-${index + 1}`] = NPSVol; // Assuming 'NPS Score' 
-            rowData[`column-${index + 2}`] = NPSScore;
-            rowData[`column-${index + 3}`] = npsRow.adv10_9;
-            rowData[`column-${index + 4}`] = npsRow.pass8_7;
-            rowData[`column-${index + 5}`] = npsRow.detr_less_6;
-        });
-    } else {
-        // If no matching NPS rows are found, set default values or leave empty
-        rowData['column-1'] = ''
-    }
-    const stayConnectedCount = item['Stay Connected'] || 0;
-    const upgradeProtectCount = item.upgrade || 0;
-    const dpcCount = item.dcpcount || 1; // Assuming 1 to avoid division by zero
-    const column17Value = ((stayConnectedCount + upgradeProtectCount) / dpcCount * 100).toFixed(2);
+          // Calculate NPS Score
+          const NPSAdvPercentage = NPSVol !== 0 ? ((npsRow.adv10_9 / NPSVol) * 100).toFixed(2) : 0;
+          const NPSDetrPercentage = NPSVol !== 0 ? ((npsRow.detr_less_6 / NPSVol) * 100).toFixed(2) : 0;
+          const NPSScore = Math.round(NPSAdvPercentage - NPSDetrPercentage);
+              // Add NPS data to corresponding columns
+              rowData[`column-${index + 1}`] = NPSVol; // Assuming 'NPS Score' 
+              rowData[`column-${index + 2}`] = NPSScore;
+              rowData[`column-${index + 3}`] = npsRow.adv10_9;
+              rowData[`column-${index + 4}`] = npsRow.pass8_7;
+              rowData[`column-${index + 5}`] = npsRow.detr_less_6;
+          });
+      } else {
+          // If no matching NPS rows are found, set default values or leave empty
+          rowData['column-1'] = ''
+      }
+      const stayConnectedCount = item['Stay Connected'] || 0;
+      const upgradeProtectCount = item.upgrade || 0;
+      const dpcCount = item.dcpcount || 1; // Assuming 1 to avoid division by zero
+      const column17Value = Math.round(((stayConnectedCount + upgradeProtectCount) / dpcCount) * 100) + '%';
+      const dpcCount1 = item.dcpcount || 0; 
+      const outrightCount = item.outriCount || 0; // Default to 0 if item.outriCount is undefined or null
+const smartWatchCount = item.smartWatchCount || 0;
+     const columnACCValue =(item.accGP / (dpcCount1+ outrightCount + smartWatchCount)).toFixed(2);
+     
 
-    // Add other columns from the 'data' object as needed
-    rowData['column-6'] = item.pnncount;
-    rowData['column-7'] = item.bundelnewcount;
-    rowData['column-8'] = item.tmbcount;
-    rowData['column-9'] = item.upgrade;
-    rowData['column-10'] = item.tyro;
-    rowData['column-13'] = item.outriCount;
-    rowData['column-14'] = item.dcpcount;
-    rowData['column-15'] = item['Belong NBN'];
-    rowData['column-16'] = item.smartWatchCount;
-    rowData['column-17'] = column17Value;
-    rowData['column-18'] = item.accGP;
-    rowData['column-19'] = item.gpvalue;
-    rowData['column-20'] = parseFloat(item.SaleValue).toFixed(2);
+      // Add other columns from the 'data' object as needed
+      rowData['column-6'] = item.pnncount;
+      rowData['column-7'] = item.bundelnewcount;
+      rowData['column-8'] = item.tmbcount;
+      rowData['column-9'] = item.upgrade+item.dcpcount;
+      rowData['column-10'] = item.tyro;
+      rowData['column-13'] = item.outriCount;
+      rowData['column-14'] = item.dcpcount;
+      rowData['column-15'] = item['Belong NBN'];
+      rowData['column-16'] = item.smartWatchCount;
+      rowData['column-17'] = column17Value;
+      rowData['column-18'] = columnACCValue;
+      
+      rowData['column-19'] = item.accGP;
+      const column18Value = item.grossprofit - item.accGP;
+      const column18flot = parseFloat(column18Value).toFixed(2);
+      rowData['column-20'] = column18flot;
+      rowData['column-21'] = item.grossprofit;
 
-    return rowData;
-});
+      return rowData;
+  });
 
- 
+  
+  // const calculateTotals = () => {
+  //   const totals = columns.map((column, colIndex) => {
+  //     if (colIndex === 0) return 'Total'; // Label for the first column
+  //     const total = rows.reduce((sum, row) => sum + (parseFloat(row[column.id]) || 0), 0);
+  //     return total.toFixed(2); // Format the total to 2 decimal places
+  //   });
+  //   return totals;
+  // };
   const calculateTotals = () => {
     const totals = columns.map((column, colIndex) => {
       if (colIndex === 0) return 'Total'; // Label for the first column
-      const total = rows.reduce((sum, row) => sum + (parseFloat(row[column.id]) || 0), 0);
+      const total = rows.reduce((sum, row) => {
+        const value = row[column.id];
+        // Remove dollar sign if present and parse the value
+        const numValue = typeof value === 'string' && value.startsWith('$') 
+          ? parseFloat(value.substring(1)) 
+          : parseFloat(value);
+        return sum + (isNaN(numValue) ? 0 : numValue);
+      }, 0);
       return total.toFixed(2); // Format the total to 2 decimal places
     });
     return totals;
@@ -526,18 +551,21 @@ console.log(error,targetError)
         <TableContainer sx={{ maxHeight: 680, borderRadius: '0 0 8px 8px', border: '2px solid #e0e0e0', borderTop: 'none' }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
-              <TableRow>
-                <TableCell colSpan={hideColumns ? 1 : 6} style={{ borderRight: '1px solid #e0e0e0' }} />
-                <TableCell colSpan={1} align="center" style={{ borderRight: '1px solid #e0e0e0' }}>15%</TableCell>
-                <TableCell colSpan={1} align="center" style={{ borderRight: '1px solid #e0e0e0' }}>14%</TableCell>
-                <TableCell colSpan={1} align="center" style={{ borderRight: '1px solid #e0e0e0' }}>14%</TableCell>
-                <TableCell colSpan={1} style={{ borderRight: '1px solid #e0e0e0' }}/>
-                <TableCell colSpan={3} align="center" style={{ borderRight: '1px solid #e0e0e0' }}>20% compulsory KPI</TableCell>
-                <TableCell colSpan={6} style={{ borderRight: '1px solid #e0e0e0' }}/>
-              </TableRow>
+                <TableRow>
+                  <TableCell colSpan={hideColumns ? 3 : 6} style={{ borderRight: '1px solid #e0e0e0' }} />
+                  <TableCell colSpan={1} align="center" style={{ borderRight: '1px solid #e0e0e0' }}>15%</TableCell>
+                  <TableCell colSpan={1} align="center" style={{ borderRight: '1px solid #e0e0e0' }}>14%</TableCell>
+                  <TableCell colSpan={1} align="center" style={{ borderRight: '1px solid #e0e0e0' }}>14%</TableCell>
+                  {!hideColumns && (
+    <TableCell colSpan={1} style={{ borderRight: '1px solid #e0e0e0' }}/>
+  )}
+                  <TableCell colSpan={3} align="center" style={{ borderRight: '1px solid #e0e0e0' }}>20% compulsory KPI</TableCell>
+                  <TableCell colSpan={hideColumns ? 6 : 8} style={{ borderRight: '1px solid #e0e0e0' }}/>
+                </TableRow>
               <TableRow>
               {columns.map((column, index) => (
-                    !hideColumns || index > 5 || index <1 ? ( // Conditionally render columns
+                    (!hideColumns || index > 5 || index < 3) && 
+                    (!hideColumns || (index !== 9 && index !== 13 && index !== 14)) ? ( // Conditionally render columns
                     <TableCell
                       key={column.id}
                       align={column.align}
@@ -559,7 +587,8 @@ console.log(error,targetError)
                       const value = row[column.id];
                       const isEditable = colIndex >= 3   && colIndex <= 5; // Make columns 2, 3, 4, 5 editable
                       return (
-                        !hideColumns || colIndex > 5  || colIndex < 1 ? (
+                        (!hideColumns || colIndex > 5 || colIndex < 3) && 
+                        (!hideColumns || (colIndex !== 9 && colIndex !== 13 && colIndex !== 14))? (
                         <TableCell
                           key={cellKey}
                           align={column.align}
@@ -584,12 +613,22 @@ console.log(error,targetError)
                               autoFocus
                             />
                           ) : (
-                            column.id === 'column-8'|| column.id === 'column-6' || column.id === 'column-7' ? (
+                            column.id === 'column-8'|| column.id === 'column-6' || column.id === 'column-7' || column.id === 'column-17'? (
                               <Box display="flex" justifyContent="center" alignItems="center" width="100%">
-                              <CircularIndicator value={value} target={column.id === 'column-6' ? target?.ppn : column.id === 'column-7' ? target?.bundel : target?.tmb} />
+                               <CircularIndicator 
+      value={value} 
+      target={column.id === 'column-6' ? target?.ppn :
+              column.id === 'column-17' ? target?.dpc : 
+              column.id === 'column-7' ? target?.bundel : 
+              target?.tmb} 
+      isDpcColumn={column.id === 'column-17'}
+    />
                             </Box>
                             ): (
-                              value
+                              // Add dollar sign for the last three columns
+                              (column.id === 'column-18' || column.id === 'column-19' || column.id === 'column-20'|| column.id === 'column-21') 
+                                ? `$${value}` 
+                             : value
                             )
                           )}
                         </TableCell>
@@ -601,7 +640,8 @@ console.log(error,targetError)
                 ))}
                 <TableRow>
                   {totals.map((total, index) => (
-                    !hideColumns || index > 5 ||index<1 ? ( // Conditionally render totals
+                  (!hideColumns || index > 5 || index < 3 ) && 
+                  (!hideColumns || (index !== 9 && index !== 13 && index !== 14))? ( // Conditionally render totals
                     <TableCell
                   key={index}
                   align="center"
@@ -613,7 +653,7 @@ console.log(error,targetError)
                     borderTop: '1px solid black'
                   }}
                 >
-                      {total}
+                  {(index === 18 || index === 19 || index === 20|| index === 21) ? `$${total}` : total}
                     </TableCell>
                     ) : null
                   ))}

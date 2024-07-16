@@ -5,7 +5,7 @@ const targetSchema = mongoose.Schema({
     type:String,
     required:true
   },
-  detr: {
+  dpc: {
     type: Number,
   },
   ppn: {
