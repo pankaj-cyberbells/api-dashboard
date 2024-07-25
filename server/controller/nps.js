@@ -11,7 +11,7 @@ export const createNPS = async (req, res) => {
       NPS,
       {
         salesrep: { $regex: new RegExp(req.body.salesrep, "i") },
-        salelocation: { $regex: new RegExp(req.body.storeLocation, "i") },
+        salelocation: { $regex: new RegExp(req.body.salelocation, "i") },
         createdDate: { $eq: new Date(req.body.createdDate) },
       },
       creatableData
@@ -40,7 +40,7 @@ export const updateNPS = async (req, res) => {
     const storedNPS = await NPS.findOneAndUpdate(
       {
         salesrep: { $regex: new RegExp(req.body.salesrep, "i") },
-        salelocation: { $regex: new RegExp(req.body.storeLocation, "i") },
+        salelocation: { $regex: new RegExp(req.body.salelocation, "i") },
         createdDate: { $eq: new Date(req.body.createdDate) },
       },
       { $set: newData },
