@@ -28,7 +28,8 @@ function Navbar() {
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex' }}>
             <Button component={Link} to="/dashboard" color="inherit">DASHBOARD</Button>
-            <Button component={Link} to="/settarget" color="inherit">SETTARGET</Button>
+            <Button component={Link} to="/settarget" color="inherit" disabled={!isCreateUserAllowed}>SETTARGET</Button>
+            <Button component={Link} to="/setkpi" color="inherit" disabled={!isCreateUserAllowed}>SET KPI %</Button>
             <Button component={Link} to="/signup" color="inherit" disabled={!isCreateUserAllowed}>CREATE USER</Button>
           </Box>
           <Button color="inherit" onClick={handleClickOpen}>LOGOUT</Button>

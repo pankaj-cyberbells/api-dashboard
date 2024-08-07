@@ -5,7 +5,9 @@ import { login } from '../api/services';
 export const loginUser = createAsyncThunk('auth/loginUser', async ({ email, password }, thunkAPI) => {
   try {
     const response = await login(email, password);
-    console.log(response)
+    console.log({response})
+    localStorage.setItem('userEmail', response.admin.email);
+   
     return response;
   } catch (error) {
     return thunkAPI.rejectWithValue(error);
@@ -19,7 +21,7 @@ const authSlice = createSlice({
     token: localStorage.getItem('token') || null,
     status: 'idle',
     error: null,
-    isCreateUserAllowed: false, 
+    isCreateUserAllowed: localStorage.getItem('userEmail') === 'gauravisonline@gmail.com', 
   },
   reducers: {
     logoutUser: (state) => {
@@ -37,7 +39,9 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.user = action.payload.admin;
         state.token = action.payload.token;
-        state.isCreateUserAllowed = action.payload.admin.email === 'gauravisonline@gmail.com';
+        // state.isCreateUserAllowed = action.payload.admin.email === 'gauravisonline@gmail.com';
+        const storedEmail = localStorage.getItem('userEmail');
+        state.isCreateUserAllowed = storedEmail === 'gauravisonline@gmail.com';
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.status = 'failed';
