@@ -203,15 +203,16 @@ export const getAll=async (req,res)=>{
       const datares = await fetch(`https://tcpsvr121.clickpos.net/ctime/ctimeapi/Sales/SaleDatafusion?startdate=${startdate}&enddate=${enddate}`, {headers});
       
       // Check if the request was successful
-      if (!datares.ok) {
-        throw new Error('Failed to fetch data from example.com');
-      }
+      // if (!datares.ok) {
+      //   throw new Error('Failed to fetch data from example.com');
+      // }
       
       // Parse the JSON response
       const alldata = await datares.json();
     const response= await aggregateSalesDataByStaff(alldata,'all')
     return res.status(200).json( response);
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ message: "Internal Server Error" });
 
   }
