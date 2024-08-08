@@ -27,7 +27,36 @@ export const getAll=async (req,res)=>{
      // Parse the JSON response
      const alldata = await datares.json();
      const aggregatedData= await aggregateSalesDataByStaff(alldata,'all')
-     const filteredResponse = aggregatedData.filter(item => item.salesrep && item.salesrep.trim() !== "");
+     const filteredData = aggregatedData.filter(item => item.salesrep && item.salesrep.trim() !== "");
+     // Merge rows by salesrep
+    const mergedData = filteredData.reduce((acc, current) => {
+      const existingItem = acc.find(item => item.salesrep === current.salesrep);
+      if (existingItem) {
+        // Merge logic: sum numeric fields, concatenate strings, etc.
+        existingItem.SaleValue += current.SaleValue;
+        existingItem.SaleCount += current.SaleCount;
+        existingItem.accGP += current.accGP;
+        existingItem['Belong NBN'] += current['Belong NBN'];
+        existingItem.bundelnewcount += current.bundelnewcount;
+        existingItem.dcpcount += current.dcpcount;
+        existingItem.grossprofit += current.grossprofit;
+        existingItem.gpvalue += current.gpvalue;
+        existingItem.outriCount += current.outriCount;
+        existingItem.pnncount += current.pnncount;
+        existingItem.smartWatchCount += current.smartWatchCount;
+        existingItem['Stay Connected'] += current['Stay Connected'];
+        existingItem['Telstra Plus'] += current['Telstra Plus'];
+        existingItem.tmbcount += current.tmbcount;
+        existingItem.tyro += current.tyro;
+        existingItem.upgrade += current.upgrade;
+        existingItem['Upgrade & Protect Plus (Stay Connected)'] += current['Upgrade & Protect Plus (Stay Connected)'];
+        // Add more fields to merge as needed
+      } else {
+        acc.push({ ...current });
+      }
+      return acc;
+    }, []);
+
 
   const missingSalesRepsCount = aggregatedData.filter(item => !item.salesrep).length;
      // Add message about missing names to the response
@@ -36,9 +65,9 @@ export const getAll=async (req,res)=>{
       : missingSalesRepsCount === 1
         ? 'One row missing staff person name.'
         : `${missingSalesRepsCount} rows missing staff person name.`;
-        console.log(filteredResponse)
+        
      const response = {
-       data: filteredResponse,
+       data: mergedData,
      
        message: message
      };
