@@ -4,6 +4,7 @@ import { getAll, getByGroupByAggregate, getBySearchQuery, getCustomer, getDataBy
 import { createTarget, deleteTarget, getTarget, getTargets, updateAllTarget, updateTarget } from "../controller/target.js";
 import {createAdmin, deleteAdmin, getAllAdmins, login} from "../controller/admin.js";
 import { createNPS, deleteNPS, getAllNPS, getNPS, updateNPS } from "../controller/nps.js";
+import { getKPIs, getKPI, createKPI, updateKPI, updateAllKPI, deleteKPI } from '../controller/KPIController.js';
 
 const router= express.Router();
 // authentication routes ====================>
@@ -59,7 +60,13 @@ router.get( "/data-by-store",  getDataByStore);
     router.delete( "/nps/:id", deleteNPS); 
     
     
-    // NPS data routes ====================>
+    //KPI data routes ====================>
+    router.get("/kpi/all", getKPIs);
+router.get("/kpi", getKPI);
+router.post("/kpi", createKPI);
+router.patch("/kpi/:id", updateKPI);
+router.put("/kpi/all", updateAllKPI);
+router.delete("/kpi/:id", deleteKPI);
       
       // router.get( "/test", fetchData); 
 
