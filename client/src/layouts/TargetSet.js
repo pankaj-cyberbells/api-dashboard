@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import FortnightDropdown from '../components/FortnightDropdown';
 
 const SetTargetForm = () => {
+  const [gpTarget, setGpTarget] = useState('')
   const [dpcTarget, setDpcTarget] = useState('');
   const [bundleTmbTarget, setBundleTmbTarget] = useState('');
   const [ppnTarget, setPpnTarget] = useState('');
@@ -46,6 +47,7 @@ const formattedToDate = formatDate(new Date(toDate));
   }, [target]);
   useEffect(() => {
     if (target) {
+      setGpTarget(target?.AcceGP_Handset_Sales||'')
       setDpcTarget(target?.dpc || '');
       setBundleTmbTarget(target?.bundel || '');
       setPpnTarget(target?.ppn || '');
@@ -54,6 +56,7 @@ const formattedToDate = formatDate(new Date(toDate));
       setWebsiteBasTarget(target?.websitebas || '');
       setDeviceSecurityTarget(target?.devicesecurity || '');
     } else {
+      setGpTarget('')
       setDpcTarget('');
       setBundleTmbTarget('');
       setPpnTarget('');
@@ -79,6 +82,7 @@ console.log(target,"target")
       tyro: tyroTarget,
       websitebas: websiteBasTarget,
       devicesecurity: deviceSecurityTarget,
+      AcceGP_Handset_Sales:gpTarget
     };
   
    const formattedFromDate = formatDate(new Date(fromDate));
@@ -160,7 +164,16 @@ console.log(target,"target")
             </FormControl>
            
             <TextField
-              label="Hand/Tab DPC Target"
+              label="Device Protect to Hand/Tab DPC Target"
+              type="number"
+              value={gpTarget}
+              onChange={(e) => setGpTarget(e.target.value)}
+              variant="outlined"
+              fullWidth
+              margin="normal"
+            />
+             <TextField
+              label="Accessory GP to Handset Sales Target"
               type="number"
               value={dpcTarget}
               onChange={(e) => setDpcTarget(e.target.value)}

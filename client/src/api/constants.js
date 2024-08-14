@@ -11,6 +11,9 @@ export const API_ROUTES = {
   LOGIN:'/login',
   CREATE_NPS:'/nps',
   GET_NPS:'/nps/all',
-  UPDATE_NPS:'/nps'
+  UPDATE_NPS:'/nps',
+  CREATE_KPI:'/kpi',
+  GET_KPI:'/kpi',
+  UPDATE_KPI:'/kpi'
     // Add more routes here as needed
   };

@@ -7,7 +7,7 @@ const CircularIndicator = ({ value, target, isDpcColumn }) => {
 
   const color = numericValue < numericTarget ? 'red' : 'green';
   const backgroundColor = numericValue < numericTarget ? 'rgba(255, 0, 0, 0.2)' : 'rgba(0, 128, 0, 0.2)';
-
+// console.log(numericValue,"value")
   return (
     <Tooltip title={`Target: ${target}${isDpcColumn ? '%' : ''}`} arrow>
       <Box

@@ -56,7 +56,14 @@ console.log({ fromDate, toDate})
         variant="contained"
         color="primary"
         onClick={handleApplyClick}
-        sx={{ height: 'fit-content' }}
+        sx={{
+          backgroundColor: '#54595f', // Change to any color you like
+          color: 'white',           // Text color
+          '&:hover': {
+            backgroundColor: 'black', // Hover color
+          },
+          height: 'fit-content',
+        }}
       >
         Apply
       </Button>

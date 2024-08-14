@@ -5,6 +5,9 @@ const targetSchema = mongoose.Schema({
     type:String,
     required:true
   },
+  AcceGP_Handset_Sales: {
+    type: Number,
+  },
   dpc: {
     type: Number,
   },

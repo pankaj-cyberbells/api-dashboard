@@ -169,3 +169,41 @@ export const deleteNps = async (npsId) => {
   }
 };
 
+
+
+
+
+
+export const createKPITarget = async (targetData) => {
+  try {
+    const response = await apiClient.post(API_ROUTES.CREATE_KPI, targetData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getKPITarget = async (salelocation , startDate, endDate) => {
+  console.log(salelocation,"kk")
+  console.log(`${API_ROUTES.GET_KPI}?salelocation=${salelocation}&startDate=${startDate}&endDate=${endDate}`,"kk")
+  try {
+    const response = await apiClient.get(`${API_ROUTES.GET_KPI}?salelocation=${salelocation}&startDate=${startDate}&endDate=${endDate}`);
+    console.log(response.data.kpi,"kkppp")
+    return response.data.kpi;
+  } catch (error) {
+    console.log(error,"hhhh")
+    throw error;
+  }
+};
+
+// Update Target Service
+export const updateKPITarget = async (targetId, targetData) => {
+  try {
+    const response = await apiClient.patch(`${API_ROUTES.UPDATE_KPI}/${targetId}`, targetData);
+    console.log(response)
+    // return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+

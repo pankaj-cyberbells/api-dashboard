@@ -24,15 +24,51 @@ function Navbar() {
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="static" sx={{ backgroundColor: '#54595f',
+     }}> 
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex' }}>
-            <Button component={Link} to="/dashboard" color="inherit">DASHBOARD</Button>
-            <Button component={Link} to="/settarget" color="inherit" disabled={!isCreateUserAllowed}>SETTARGET</Button>
-            <Button component={Link} to="/setkpi" color="inherit" disabled={!isCreateUserAllowed}>SET KPI %</Button>
-            <Button component={Link} to="/signup" color="inherit" disabled={!isCreateUserAllowed}>CREATE USER</Button>
+            <Button component={Link} to="/dashboard" color="inherit" sx={{
+          backgroundColor: '#54595f', // Change to any color you like
+          color: 'white',           // Text color
+          '&:hover': {
+            backgroundColor: 'black', // Hover color
+          },
+        
+        }}>DASHBOARD</Button>
+            <Button component={Link} to="/settarget" color="inherit" disabled={!isCreateUserAllowed}sx={{
+          backgroundColor: '#54595f', // Change to any color you like
+          color: 'white',           // Text color
+          '&:hover': {
+            backgroundColor: 'black', // Hover color
+          },
+        
+        }}>SETTARGET</Button>
+            <Button component={Link} to="/setkpi" color="inherit" disabled={!isCreateUserAllowed}sx={{
+          backgroundColor: '#54595f', // Change to any color you like
+          color: 'white',           // Text color
+          '&:hover': {
+            backgroundColor: 'black', // Hover color
+          },
+        
+        }}>SET KPI %</Button>
+            <Button component={Link} to="/signup" color="inherit" disabled={!isCreateUserAllowed}sx={{
+          backgroundColor: '#54595f', // Change to any color you like
+          color: 'white',           // Text color
+          '&:hover': {
+            backgroundColor: 'black', // Hover color
+          },
+        
+        }}>CREATE USER</Button>
           </Box>
-          <Button color="inherit" onClick={handleClickOpen}>LOGOUT</Button>
+          <Button color="inherit" onClick={handleClickOpen}sx={{
+          backgroundColor: '#54595f', // Change to any color you like
+          color: 'white',           // Text color
+          '&:hover': {
+            backgroundColor: 'black', // Hover color
+          },
+        
+        }}>LOGOUT</Button>
         </Toolbar>
       </AppBar>
       <Dialog

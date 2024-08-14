@@ -27,12 +27,16 @@ import {
 import DateInputs from "../components/DateInputs";
 import CircularIndicator from "../components/CircularIndicator";
 import { getTargetThunk } from "../features/targetSlice";
+import { getKPITargetThunk } from "../features/kpiTargetSlice";
 import FortnightDropdown from "../components/FortnightDropdown";
 import {
   calculateYearlyFortnights,
   getLastFourFortnights,
   getAnps,
 } from "../utils/formatDate";
+import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Dashboard() {
   // State variables
@@ -42,24 +46,64 @@ export default function Dashboard() {
     index: 1,
     value: "Traralgon",
   });
+
   const [editingCell, setEditingCell] = useState(null); // To track the cell being edited
   const [mutableData, setMutableData] = useState([]); // To hold a mutable copy of data
+  const [originalValues, setOriginalValue] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [selectedFortnight, setSelectedFortnight] = useState(null);
-  const [hideColumns, setHideColumns] = useState(false);
+  const [hideColumns, setHideColumns] = useState(true);
   const [noDataMessage, setNoDataMessage] = useState("");
+  const [KPITargets, setKPITargets] = useState({
+    KPITMB:null,
+    KPIPPN: null,
+    KPIBundle: null,
+    KPITWD: null,
+    KPIDPC: null,
+    KPIACCGP: null,
+  });
+
   // Redux hooks
   const dispatch = useDispatch();
-  const { data, loading, error } = useSelector((state) => state.tableData);
+  const { data, message, loading, error } = useSelector(
+    (state) => state.tableData
+  );
   const {
     target,
     loading: targetLoading,
     error: targetError,
   } = useSelector((state) => state.targets);
-  const { npsData, npsLoading, npsError } = useSelector((state) => state.nps);
 
-  console.log(mutableData);
+  const { npsData, npsLoading, npsError } = useSelector((state) => state.nps);
+  const {
+    KPITarget,
+    loading: KPILoading,
+    error: KPIError,
+  } = useSelector((state) => state.KPITargets);
+
+  useEffect(() => {
+    if (KPITarget) {
+      setKPITargets({
+        KPITMB:KPITarget.KPITMB ?? null,
+        KPIPPN: KPITarget.KPIPPN ?? null,
+        KPIBundle: KPITarget.KPIBundle ?? null,
+        KPITWD: KPITarget.KPITWD ?? null,
+        KPIDPC: KPITarget.KPIDPC ?? null,
+        KPIACCGP: KPITarget.KPIACCGP ?? null,
+      });
+    } else {
+      setKPITargets({
+        KPITMB: null,
+        KPIPPN: null,
+        KPIBundle: null,
+        KPITWD: null,
+        KPIDPC: null,
+        KPIACCGP: null,
+      });
+    }
+  }, [KPITarget]);
+  console.log(KPITarget, "hhh");
 
   // Fetch targets when the selected tab changes
   // useEffect(() => {
@@ -70,47 +114,81 @@ export default function Dashboard() {
   //   }
   //   dispatch(getTargetThunk(salelocation));
   // }, [dispatch, selectedTab.value]);
+
+  useEffect(() => {
+    if (message) {
+      toast.error(message, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+  }, [message]);
+
+  // Helper function to check if a date is valid
+  function isValidDate(dateString) {
+    return !dateString.includes("NaN");
+  }
   useEffect(() => {
     console.log({ fromDate, toDate });
     let salelocation = selectedTab.value;
     if (selectedTab.value === "All Stores") {
       salelocation = "all-store";
     }
+
     const formattedFromDate = formatDate(new Date(fromDate));
     const formattedToDate = formatDate(new Date(toDate));
-    dispatch(
-      getTargetThunk({
-        salelocation,
-        startDate: formattedFromDate,
-        endDate: formattedToDate,
-      })
-    );
+
+    // Check if the dates are valid before making the API call
+    if (isValidDate(formattedFromDate) && isValidDate(formattedToDate)) {
+      dispatch(
+        getTargetThunk({
+          salelocation,
+          startDate: formattedFromDate,
+          endDate: formattedToDate,
+        })
+      );
+      dispatch(
+        getKPITargetThunk({
+          salelocation,
+          startDate: formattedFromDate,
+          endDate: formattedToDate,
+        })
+      );
+    } else {
+      console.log("Invalid date detected. Waiting for correct date.");
+    }
   }, [dispatch, selectedTab, fromDate, toDate]);
 
   // Initialize dates and fetch initial data
   useEffect(() => {
     const today = new Date();
-    // const thirtyDaysAgo = new Date(today);
-    // thirtyDaysAgo.setDate(today.getDate() - 90);
-    // const formattedforFromDate =formatforDate(thirtyDaysAgo)
-    // const formattedforTomDate =formatforDate(today)
     const formattedFromDate = formatDate(new Date(fromDate));
     const formattedToDate = formatDate(new Date(toDate));
-    // setFromDate(formattedforFromDate);
-    // setToDate(formattedforTomDate);
-    dispatch(
-      loadData({
-        salelocation: selectedTab.value,
-        startDate: formattedFromDate,
-        endDate: formattedToDate,
-      })
-    );
+
+    // Check if the dates are valid before making the API call
+    if (isValidDate(formattedFromDate) && isValidDate(formattedToDate)) {
+      dispatch(
+        loadData({
+          salelocation: selectedTab.value,
+          startDate: formattedFromDate,
+          endDate: formattedToDate,
+        })
+      );
+    } else {
+      console.log("Invalid date detected. Waiting for correct date.");
+    }
   }, [dispatch]);
+
   function parseDate(dateString) {
-    const [day, month, year] = dateString.split('/');
+    const [day, month, year] = dateString.split("/");
     // Note: months are 0-indexed in JavaScript Date objects
     return new Date(2000 + parseInt(year), parseInt(month) - 1, parseInt(day));
-}
+  }
 
   const formatDate = (date) => {
     // console.log(date);
@@ -167,8 +245,6 @@ export default function Dashboard() {
   };
   console.log(error, targetError);
 
-
-
   // Fetch data based on current date range and tab
   const fetchData = () => {
     const startDate = fromDate.split("-").reverse().join("/");
@@ -176,18 +252,13 @@ export default function Dashboard() {
     fetchDataForTab(selectedTab.value, startDate, endDate);
   };
 
-
-
   useEffect(() => {
     const startDate = fromDate.split("-").reverse().join("/");
     const endDate = toDate.split("-").reverse().join("/");
     dispatch(getAllNpsThunk({ startDate, endDate }));
     console.log({ startDate, endDate });
   }, [createNpsThunk, updateNpsThunk, dispatch, selectedFortnight]);
- 
 
-
-  
   useEffect(() => {
     fetchData();
   }, [fromDate, toDate]);
@@ -208,6 +279,9 @@ export default function Dashboard() {
   };
 
   const handleDoubleClick = (rowIndex, columnId) => {
+    // Store the original value when starting to edit
+    const value = mutableData[rowIndex] ? mutableData[rowIndex][columnId] : "";
+    setOriginalValue(value);
     setEditingCell({ rowIndex, columnId });
   };
 
@@ -245,6 +319,14 @@ export default function Dashboard() {
       if (isUpdating) {
         return;
       }
+      // Get the current value
+      const value = mutableData[rowIndex]
+        ? mutableData[rowIndex][columnId]
+        : "";
+      if (value === originalValues || value.trim() === "") {
+        setEditingCell(null);
+        return;
+      }
 
       const newData = [...mutableData];
       const originalValue = data[rowIndex][columnId];
@@ -259,12 +341,13 @@ export default function Dashboard() {
 
         const rowData = newData[rowIndex];
         const existingNpsEntry = npsData?.find(
-        
-          (entry) => entry.salesrep === rowData.salesrep && entry.salelocation === selectedTab.value
+          (entry) =>
+            entry.salesrep === rowData.salesrep &&
+            entry.salelocation === selectedTab.value
         );
-        console.log(newData[rowIndex])
-      
-        console.log({existingNpsEntry})
+        console.log(newData[rowIndex]);
+
+        console.log({ existingNpsEntry });
         const fieldName =
           columnId === "column-1"
             ? "NPSVol"
@@ -318,29 +401,27 @@ export default function Dashboard() {
             let CfromDate = parseDate(formattedFromDate);
             let CtoDate = parseDate(formattedToDate);
             let Ccurrent = parseDate(currentDate);
-            console.log(CfromDate)
-            console.log(CtoDate)
-            console.log(Ccurrent)
-            console.log(createdAtFormatted === currentDateS)
-            console.log(Ccurrent >= CfromDate)
-            console.log(Ccurrent <= CtoDate)
-            console.log(createdAtFormatted === currentDateS)
-            console.log(currentDate >= formattedFromDate &&
-              currentDate <= formattedToDate);
-            // Check if current date is within the range of fromDate to toDate
-            if (
-              Ccurrent >= CfromDate &&
-              Ccurrent <= CtoDate
-            ) {
-              console.log(existingNpsEntry)
-              console.log(currentDate)
-              console.log(createdAtFormatted === currentDateS)
-              console.log(existingNpsEntry && createdAtFormatted === currentDateS);
+
+            
+              console.log(existingNpsEntry);
+              console.log(currentDate);
+              console.log(createdAtFormatted === currentDateS);
+              console.log(
+                existingNpsEntry && createdAtFormatted === currentDateS
+              );
+
+            const createdDate = existingNpsEntry && Ccurrent >= CfromDate && Ccurrent <= CtoDate
+          ? forrmatDate(new Date())
+          : forrmatDate(new Date(fromDate));
+
+        npsValue.createdDate = createdDate;
+
+
               if (existingNpsEntry && createdAtFormatted === currentDateS) {
-                console.log("updat kr rha hu")
+                console.log("updat kr rha hu");
                 await dispatch(updateNpsThunk({ npsData: npsValue }));
               } else {
-                console.log("create kr rha hu")
+                console.log("create kr rha hu");
                 await dispatch(createNpsThunk(npsValue));
               }
 
@@ -351,12 +432,7 @@ export default function Dashboard() {
                   endDate: formattedToDate,
                 })
               );
-            } else {
-              // Show an alert if the current date is not within the range
-              alert(
-                "Current date is not within the Current fortnight range. You dont change previuos fortnight NPS ."
-              );
-            }
+             
           } catch (error) {
             console.error("Error updating or creating NPS data:", error);
           } finally {
@@ -369,7 +445,7 @@ export default function Dashboard() {
       }
     }
   };
-  
+
   const headerNames = [
     selectedTab.value,
     "NPS Vol",
@@ -390,7 +466,7 @@ export default function Dashboard() {
     "Belong NBN",
     "Smart Watch",
     `Device Protect to Hand/Tab DPC (${target?.dpc || "N/A"}%)`,
-    "Accessory GP to Handset Sales",
+    `Accessory GP to Handset Sales(${target?.AcceGP_Handset_Sales || "N/A"})`,
     "Acc GP",
     "Handset/Plan GP",
     "Total GP",
@@ -408,46 +484,66 @@ export default function Dashboard() {
   const tabs = ["All Stores", "Traralgon", "Warragul", "Torquay"];
 
   const rows = data?.map((item) => {
-    const rowData = { "column-0": item.salesrep };
+    const rowData = {
+      "column-0":
+        item.salesrep === "" || item.salesrep === null
+          ? "unknown salesrep"
+          : item.salesrep,
+    };
 
     // Find all matching NPS rows for the current salesrep
     // console.log("hggwej", selectedTab.value);
-    const matchingNpsRows = npsData?.filter(
-      (npsItem) =>
-        npsItem.salesrep === item.salesrep &&
-        npsItem.salelocation === selectedTab.value
-    );
+    const matchingNpsRows = npsData?.filter((npsItem) => {
+      if (selectedTab.value === 'All Stores') {
+        return npsItem.salesrep === item.salesrep;
+      } else {
+        return npsItem.salesrep === item.salesrep && npsItem.salelocation === selectedTab.value;
+      }
+    });
     if (matchingNpsRows?.length > 0) {
+      let aggregatedData = {
+        adv10_9: 0,
+        pass8_7: 0,
+        detr_less_6: 0
+      };
       matchingNpsRows.forEach((npsRow, index) => {
+        aggregatedData.adv10_9 += npsRow.adv10_9;
+        aggregatedData.pass8_7 += npsRow.pass8_7;
+        aggregatedData.detr_less_6 += npsRow.detr_less_6;
+        // console.log(`Salesrep: ${npsRow.salesrep}, Aggregated Data:`, aggregatedData);
         // Calculate NPSVol
-        const NPSVol = npsRow.adv10_9 + npsRow.pass8_7 + npsRow.detr_less_6;
+        const NPSVol = aggregatedData.adv10_9 + aggregatedData.pass8_7 + aggregatedData.detr_less_6;
 
         // Calculate NPS Score
         const NPSAdvPercentage =
-          NPSVol !== 0 ? ((npsRow.adv10_9 / NPSVol) * 100).toFixed(2) : 0;
+        NPSVol !== 0 ? ((aggregatedData.adv10_9 / NPSVol) * 100).toFixed(2) : 0;
         const NPSDetrPercentage =
-          NPSVol !== 0 ? ((npsRow.detr_less_6 / NPSVol) * 100).toFixed(2) : 0;
+          NPSVol !== 0 ? ((aggregatedData.detr_less_6 / NPSVol) * 100).toFixed(2) : 0;
         const NPSScore = Math.round(NPSAdvPercentage - NPSDetrPercentage);
-
+        // console.log(`Final Aggregated Data for ${item.salesrep}:`, aggregatedData);
+        // console.log(NPSVol, `NPSScore: ${NPSScore}`);
         // Add NPS data to corresponding columns
-        rowData[`column-${index + 1}`] = NPSVol; // Assuming 'NPS Score'
-        rowData[`column-${index + 2}`] = NPSScore;
-        rowData[`column-${index + 3}`] = npsRow.adv10_9;
-        rowData[`column-${index + 4}`] = npsRow.pass8_7;
-        rowData[`column-${index + 5}`] = npsRow.detr_less_6;
+        rowData['column-1'] = NPSVol;
+        rowData['column-2'] = NPSScore;
+        rowData['column-3'] = aggregatedData.adv10_9;
+        rowData['column-4'] = aggregatedData.pass8_7;
+        rowData['column-5'] = aggregatedData.detr_less_6;
       });
     } else {
-      // If no matching NPS rows are found, set default values or leave empty
-      rowData["column-1"] = "";
+     // If no matching NPS rows are found, set default values or leave empty
+  rowData["column-1"] = "";
+  rowData["column-2"] = "";
+  rowData["column-3"] = "";
+  rowData["column-4"] = "";
+  rowData["column-5"] = "";
     }
-    const stayConnectedCount = item["Stay Connected"] || 0;
+    const stayConnectedCount =
+      item["Upgrade & Protect Plus (Stay Connected)"] || 0;
     const upgradeProtectCount = item.upgrade || 0;
     const dpcCount = item.dcpcount || 1; // Assuming 1 to avoid division by zero
 
     const column17Value =
-      Math.round(
-        ((stayConnectedCount + upgradeProtectCount) / dpcCount) * 100
-      ) + "%";
+      Math.round((stayConnectedCount / dpcCount) * 100) + "%";
 
     const dpcCount1 = item.dcpcount || 0;
     const outrightCount = item.outriCount || 0; // Default to 0 if item.outriCount is undefined or null
@@ -466,33 +562,48 @@ export default function Dashboard() {
     // Calculate KPI score
     let kpiScore = 0;
 
-    // Device Protection KPI (15%)
-    if (parseFloat(column17Value) > 50) {
-      kpiScore += 15;
+    // PPN KPI (20%)
+   
+
+    if (item.pnncount >= (target?.ppn!== null ? target?.ppn : 0) ) {
+     
+      kpiScore +=  KPITargets.KPIPPN !== null ? KPITargets.KPIPPN : 0;
+
     }
 
     // New Bundles KPI (25%)
-    if (item.bundelnewcount > 2) {
-      kpiScore += 25;
+    if (item.bundelnewcount >= (target?.bundel!== null ? target?.bundel : 0)) {
+      kpiScore +=KPITargets.KPIBundle !== null ? KPITargets.KPIBundle : 0;
+     
+    }
+      // TMB
+      if (
+        item.tyro >= (target?.tyro!== null ? target?.tyro : 0) &&
+        item["Website BAS"] >= (target?.websitebas!== null ? target?.websitebas : 0) &&
+        item["Device Security($10/m)"] >= (target?.devicesecurity!== null ? target?.devicesecurity : 0)
+      ) {
+        kpiScore += KPITargets.KPITWD !== null ? KPITargets.KPITWD : 0;
+        
+      }
+
+    // Device Protection KPI (15%)
+    if (parseFloat(column17Value) >= (target?.devicesecurity!== null ? target?.devicesecurity : 0)) {
+      kpiScore += KPITargets.KPIDPC !== null ? KPITargets.KPIDPC : 0;
+     
     }
 
     // Accessory GP to Device KPI (25%)
-    if (parseFloat(columnACCValue) > 60) {
-      kpiScore += 25;
+    if (parseFloat(columnACCValue) >= (target?.AcceGP_Handset_Sales!== null ? target?.AcceGP_Handset_Sales : 0)) {
+      kpiScore += KPITargets.KPIACCGP !== null ? KPITargets.KPIACCGP : 0;
+    
     }
 
-    // PPN KPI (20%)
-    if (item.pnncount > 5) {
-      kpiScore += 20;
-    }
-       if (item.tyro >= 2 && item["Website BAS"] >= 1 && item["Device Security($10/m)"] >= 1) {
-      kpiScore += 15;
-    }
+  
 
     // Calculate commission
-    console.log({ kpiScore });
+    // console.log({ kpiScore });
     let commission;
-    if (kpiScore >= 60) {
+    if (kpiScore >= 65) {
       // Step 1: Calculate Gross Profit
       const grossProfitCommission = 0.07 * item.grossprofit;
 
@@ -521,7 +632,9 @@ export default function Dashboard() {
     rowData["column-7"] = item.bundelnewcount;
     rowData["column-8"] = item.tmbcount;
     rowData["column-9"] = item.upgrade + item.dcpcount;
-    rowData["column-10"] = item.tyro;
+    rowData["column-10"] = item.tyro||0;
+    rowData["column-11"] = 0;
+    rowData["column-12"] = 0;
     rowData["column-13"] = item.outriCount;
     rowData["column-14"] = item.dcpcount;
     rowData["column-15"] = item["Belong NBN"];
@@ -539,7 +652,6 @@ export default function Dashboard() {
     return rowData;
   });
 
- 
   const calculateTotals = () => {
     let totalStayConnected = 0;
     let totalUpgradeProtect = 0;
@@ -550,23 +662,27 @@ export default function Dashboard() {
 
     // Calculate totals directly from data
     data?.forEach((item) => {
-      totalStayConnected += isNaN(item["Stay Connected"])
+      totalStayConnected += isNaN(
+        item["Upgrade & Protect Plus (Stay Connected)"]
+      )
         ? 0
-        : parseFloat(item["Stay Connected"]);
+        : parseFloat(item["Upgrade & Protect Plus (Stay Connected)"]);
       totalUpgradeProtect += isNaN(item.upgrade) ? 0 : parseFloat(item.upgrade);
       totalDPC += isNaN(item.dcpcount) ? 0 : parseFloat(item.dcpcount);
     });
 
-  
+    // Filter NPS data based on selected tab
+    const filteredNpsData = npsData?.filter((npsItem) => 
+    selectedTab.value === 'All Stores' ? true : npsItem.salelocation === selectedTab.value
+  );  
 
-    const filteredNpsData = npsData?.filter(
-      (npsItem) => npsItem.salelocation === selectedTab.value
-    );
-    
-    const totalAdv10_9 = filteredNpsData?.reduce((sum, item) => sum + item.adv10_9, 0) || 0;
-    const totalPass8_7 = filteredNpsData?.reduce((sum, item) => sum + item.pass8_7, 0) || 0;
-    const totalDetr_less_6 = filteredNpsData?.reduce((sum, item) => sum + item.detr_less_6, 0) || 0;
-    
+    const totalAdv10_9 =
+      filteredNpsData?.reduce((sum, item) => sum + item.adv10_9, 0) || 0;
+    const totalPass8_7 =
+      filteredNpsData?.reduce((sum, item) => sum + item.pass8_7, 0) || 0;
+    const totalDetr_less_6 =
+      filteredNpsData?.reduce((sum, item) => sum + item.detr_less_6, 0) || 0;
+
     // Calculate total NPS Score
     const totalNPSVol = totalAdv10_9 + totalPass8_7 + totalDetr_less_6;
     const NPSAdvPercentage =
@@ -587,16 +703,18 @@ export default function Dashboard() {
         return totalNPSScore;
       }
 
-      const total = rows.reduce((sum, row) => {
-        const value = row[column.id];
-        // Remove dollar sign if present and parse the value
-        const numValue =
-          typeof value === "string" && value.startsWith("$")
-            ? parseFloat(value.substring(1))
-            : parseFloat(value);
+      const total =
+        rows &&
+        rows.reduce((sum, row) => {
+          const value = row[column.id];
+          // Remove dollar sign if present and parse the value
+          const numValue =
+            typeof value === "string" && value.startsWith("$")
+              ? parseFloat(value.substring(1))
+              : parseFloat(value);
 
-        return sum + (isNaN(numValue) ? 0 : numValue);
-      }, 0);
+          return sum + (isNaN(numValue) ? 0 : numValue);
+        }, 0);
 
       return Math.round(total); // Format the total to 2 decimal places
     });
@@ -604,9 +722,7 @@ export default function Dashboard() {
     // Calculate Device Protection to Hand/Tab DPC (50%)
     const deviceProtectToDPC =
       totalDPC !== 0
-        ? Math.round(
-            ((totalStayConnected + totalUpgradeProtect) / totalDPC) * 100
-          ) + "%"
+        ? Math.round((totalStayConnected / totalDPC) * 100) + "%"
         : "0%";
 
     // Assume column-17 is for Device Protection to Hand/Tab DPC
@@ -621,8 +737,33 @@ export default function Dashboard() {
   };
   const totals = calculateTotals();
 
+  const headers = [
+    { colSpan: hideColumns ? 3 : 6, align: "left", percentage: "", visible: true },
+  { colSpan: 1, align: "center", kpi: "KPIPPN", visible: true },
+  { colSpan: 1, align: "center", kpi: "KPIBundle", visible: true },
+  { colSpan: 1, align: "center", kpi: "KPITMB", visible: true  },
+  { colSpan: hideColumns ? 0 : 1, align: "center", percentage: "", visible: !hideColumns },
+  { colSpan: 3, align: "center", kpi: "KPITWD", visible: true },
+  { colSpan: hideColumns ? 1 : 4, align: "center", percentage: "", visible: true },
+  { colSpan: 1, align: "center", kpi: "KPIDPC", visible: true },
+  { colSpan: 1, align: "center", kpi: "KPIACCGP", visible: true },
+  { colSpan: hideColumns ? 2 : 4, align: "left", percentage: "", visible: true},
+  ];
+
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Navbar />
       <Paper
         sx={{ width: "98%", marginTop: 5, marginLeft: "15px", padding: "10px" }}
@@ -642,7 +783,12 @@ export default function Dashboard() {
           <Tabs
             value={selectedTab.index}
             onChange={handleTabChange}
-            indicatorColor="primary"
+            TabIndicatorProps={{
+              sx: {
+                backgroundColor: '#54595f', // Set your desired color for the underline
+                height: '3px', // You can also adjust the height/thickness of the underline
+              },
+            }}
             textColor="primary"
             variant="scrollable"
             scrollButtons="auto"
@@ -661,6 +807,17 @@ export default function Dashboard() {
                   borderTop: "2px solid #e0e0e0",
                   marginRight: "2px",
                   paddingY: "25.5px",
+                  '&:hover': {
+                    backgroundColor: '#54595f', // Set your desired hover background color
+                    color: '#FFFFFF', // Set your desired hover text color
+                  },
+                  '&.Mui-selected': {
+                    borderLeft: "2px solid #54595f",
+                    borderRight: "2px solid #54595f",
+                    borderTop: "2px solid #54595f",
+                    backgroundColor: '#54595f',
+                    color: '#FFFFFF', // Keep the selected tab color as primary (or any other color)
+                  },
                 }}
               />
             ))}
@@ -673,6 +830,16 @@ export default function Dashboard() {
               checked={hideColumns}
               onChange={(e) => setHideColumns(e.target.checked)}
               color="primary"
+              sx={{
+                color: '#54595f', // Color when unchecked
+                '&.Mui-checked': {
+                  color: '#54595f', // Color when checked
+                },
+                '&:hover': {
+                  backgroundColor: '#54595f', // Set your desired hover background color
+                  color: '#FFFFFF', // Set your desired hover text color
+                },
+              }}
             />
             <FortnightDropdown
               selectedFortnight={selectedFortnight}
@@ -694,10 +861,6 @@ export default function Dashboard() {
           <Box sx={{ padding: "20px", textAlign: "center", color: "red" }}>
             <CircularProgress sx={{ margin: "20px auto", display: "block" }} />
           </Box>
-        ) : error ? (
-          <Box sx={{ padding: "20px", textAlign: "center", color: "red" }}>
-            {error}
-          </Box>
         ) : (
           <>
             <TableContainer
@@ -710,7 +873,7 @@ export default function Dashboard() {
             >
               <Table stickyHeader aria-label="sticky table">
                 <TableHead>
-                  <TableRow>
+                  {/* <TableRow>
                     <TableCell
                       colSpan={hideColumns ? 3 : 6}
                       style={{ borderRight: "1px solid #e0e0e0" }}
@@ -733,9 +896,7 @@ export default function Dashboard() {
                       colSpan={1}
                       align="center"
                       style={{ borderRight: "1px solid #e0e0e0" }}
-                    >
-                    
-                    </TableCell>
+                    ></TableCell>
                     {!hideColumns && (
                       <TableCell
                         colSpan={1}
@@ -751,7 +912,7 @@ export default function Dashboard() {
                       15% compulsory KPI
                     </TableCell>
                     <TableCell
-                      colSpan={hideColumns ? 2 : 4}
+                      colSpan={hideColumns ? 1 : 4}
                       align="center"
                       style={{ borderRight: "1px solid #e0e0e0" }}
                     ></TableCell>
@@ -770,15 +931,40 @@ export default function Dashboard() {
                       25%
                     </TableCell>
                     <TableCell
-                      colSpan={4}
+                      colSpan={hideColumns ? 2 : 4}
                       style={{ borderRight: "1px solid #e0e0e0" }}
                     />
-                  </TableRow>
+                  </TableRow> */}
+                 <TableRow>
+  {headers.filter(header => header.visible).map((header, index) => (
+    <TableCell
+      key={index}
+      colSpan={header.colSpan}
+      align={header.align}
+      style={{ borderRight: "1px solid #e0e0e0" }}
+    >
+      {header.kpi && KPITargets && (
+        <div>
+          {KPITargets[header.kpi] != null
+            ? `${KPITargets[header.kpi]}%`
+            : "N/A"}
+        </div>
+      )}
+
+      {header.colSpan === 3 && "compulsory KPI"} {/* Special case handling */}
+    </TableCell>
+  ))}
+</TableRow>
                   <TableRow>
                     {columns.map((column, index) =>
                       (!hideColumns || index > 5 || index < 3) &&
                       (!hideColumns ||
-                        (index !== 9 && index !== 13 && index !== 14)) ? ( // Conditionally render columns
+                        (index !== 9 &&
+                          index !== 13 &&
+                          index !== 14 &&
+                          index !== 16 &&
+                          index !== 19 &&
+                          index !== 20)) ? ( // Conditionally render columns
                         <TableCell
                           key={column.id}
                           align={column.align}
@@ -796,109 +982,136 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row, rowIndex) =>
-                      !hideColumns || rowIndex !== rows.length ? ( // Conditionally render rows
-                        <TableRow
-                          hover
-                          role="checkbox"
-                          tabIndex={-1}
-                          key={rowIndex}
-                        >
-                          {columns.map((column, colIndex) => {
-                            const cellKey = `${rowIndex}-${column.id}`;
-                            const value = row[column.id];
-                            const isEditable = colIndex >= 3 && colIndex <= 5; // Make columns 2, 3, 4, 5 editable
-                            return (!hideColumns ||
-                              colIndex > 5 ||
-                              colIndex < 3) &&
-                              (!hideColumns ||
-                                (colIndex !== 9 &&
-                                  colIndex !== 13 &&
-                                  colIndex !== 14)) ? (
-                              <TableCell
-                                key={cellKey}
-                                align={column.align}
-                                onClick={() =>
-                                  isEditable &&
-                                  handleDoubleClick(rowIndex, column.id)
-                                }
-                                onBlur={() =>
-                                  isEditable && handleBlur(rowIndex, column.id)
-                                }
-                                style={{
-                                  border: "1px solid #e0e0e0",
-
-                                  textAlign: "center",
-                                }}
-                              >
-                                {editingCell &&
-                                editingCell.rowIndex === rowIndex &&
-                                editingCell.columnId === column.id ? (
-                                  <TextField
-                                    // value={value}
-                                    value={
-                                      mutableData[rowIndex]
-                                        ? mutableData[rowIndex][column.id]
-                                        : ""
-                                    }
-                                    onChange={(event) =>
-                                      handleInputChange(
-                                        event,
-                                        rowIndex,
-                                        column.id
-                                      )
-                                    }
-                                    onBlur={() =>
-                                      handleBlur(rowIndex, column.id)
-                                    }
-                                    autoFocus
-                                  />
-                                ) : column.id === "column-8" ||
-                                  column.id === "column-6" ||
-                                  column.id === "column-7" ||
-                                  column.id === "column-17" ? (
-                                  <Box
-                                    display="flex"
-                                    justifyContent="center"
-                                    alignItems="center"
-                                    width="100%"
-                                  >
-                                    <CircularIndicator
-                                      value={value}
-                                      target={
-                                        column.id === "column-6"
-                                          ? target?.ppn
-                                          : column.id === "column-17"
-                                          ? target?.dpc
-                                          : column.id === "column-7"
-                                          ? target?.bundel
-                                          : target?.tmb
+                  {rows &&
+                    rows
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map((row, rowIndex) =>
+                        !hideColumns || rowIndex !== rows.length ? ( // Conditionally render rows
+                          <TableRow
+                            hover
+                            role="checkbox"
+                            tabIndex={-1}
+                            key={rowIndex}
+                          >
+                            {columns.map((column, colIndex) => {
+                              const cellKey = `${rowIndex}-${column.id}`;
+                              const value = row[column.id];
+                              const isEditable = colIndex >= 3 && colIndex <= 5; // Make columns 2, 3, 4, 5 editable
+                              return (!hideColumns ||
+                                colIndex > 5 ||
+                                colIndex < 3) &&
+                                (!hideColumns ||
+                                  (colIndex !== 9 &&
+                                    colIndex !== 13 &&
+                                    colIndex !== 14 &&
+                                    colIndex !== 16 &&
+                                    colIndex !== 19 &&
+                                    colIndex !== 20)) ? (
+                                <TableCell
+                                  key={cellKey}
+                                  align={column.align}
+                                  onClick={() =>
+                                    selectedTab.value !== "All Stores" &&
+                                    isEditable &&
+                                    handleDoubleClick(rowIndex, column.id)
+                                  }
+                                  onBlur={() =>
+                                    selectedTab.value !== "All Stores" &&
+                                    isEditable &&
+                                    handleBlur(rowIndex, column.id)
+                                  }
+                                  style={{
+                                    border: "1px solid #e0e0e0",
+                                    cursor: isEditable ? "pointer" : "default",
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  {editingCell &&
+                                  editingCell.rowIndex === rowIndex &&
+                                  editingCell.columnId === column.id ? (
+                                    <TextField
+                                      // value={value}
+                                      value={
+                                        mutableData[rowIndex]
+                                          ? mutableData[rowIndex][column.id]
+                                          : ""
                                       }
-                                      isDpcColumn={column.id === "column-17"}
+                                      onChange={(event) =>
+                                        handleInputChange(
+                                          event,
+                                          rowIndex,
+                                          column.id
+                                        )
+                                      }
+                                      onBlur={() =>
+                                        handleBlur(rowIndex, column.id)
+                                      }
+                                      autoFocus
                                     />
-                                  </Box>
-                                ) : // Add dollar sign for the last three columns
-                                column.id === "column-18" ||
-                                  column.id === "column-19" ||
-                                  column.id === "column-20" ||
-                                  column.id === "column-21" ? (
-                                  `$${value}`
-                                ) : (
-                                  value
-                                )}
-                              </TableCell>
-                            ) : null;
-                          })}
-                        </TableRow>
-                      ) : null
-                    )}
+                                  ) : column.id === "column-8" ||
+                                    column.id === "column-6" ||
+                                    column.id === "column-7" ||
+                                    column.id === "column-10" ||
+                                    column.id === "column-11" ||
+                                    column.id === "column-12" ||
+                                    column.id === "column-18" ||
+                                    column.id === "column-17" ? (
+                                    <Box
+                                      display="flex"
+                                      justifyContent="center"
+                                      alignItems="center"
+                                      width="100%"
+                                    >
+                                      <CircularIndicator
+                                        value={value}
+                                        target={
+                                          column.id === "column-6"
+                                            ? target?.ppn
+                                            : column.id === "column-10"
+                                            ? target?.tyro
+                                            :column.id === "column-11"
+                                            ? target?.websitebas
+                                            :column.id === "column-12"
+                                            ? target?.devicesecurity
+                                            :  column.id === "column-18"
+                                            ? target?.AcceGP_Handset_Sales
+                                            : column.id === "column-17"
+                                            ? target?.dpc
+                                            : column.id === "column-7"
+                                            ? target?.bundel
+                                            : target?.tmb
+                                        }
+                                        isDpcColumn={column.id === "column-17"}
+                                      />
+                                    </Box>
+                                  ) : // Add dollar sign for the last three columns
+                                  column.id === "column-18" ||
+                                    column.id === "column-19" ||
+                                    column.id === "column-20" ||
+                                    column.id === "column-21" ? (
+                                    `$${value}`
+                                  ) : (
+                                    value
+                                  )}
+                                </TableCell>
+                              ) : null;
+                            })}
+                          </TableRow>
+                        ) : null
+                      )}
                   <TableRow>
                     {totals.map((total, index) =>
                       (!hideColumns || index > 5 || index < 3) &&
                       (!hideColumns ||
-                        (index !== 9 && index !== 13 && index !== 14)) ? ( // Conditionally render totals
+                        (index !== 9 &&
+                          index !== 13 &&
+                          index !== 14 &&
+                          index !== 16 &&
+                          index !== 19 &&
+                          index !== 20)) ? ( // Conditionally render totals
                         <TableCell
                           key={index}
                           align="center"
@@ -926,7 +1139,7 @@ export default function Dashboard() {
             <TablePagination
               rowsPerPageOptions={[25, 50, 100]}
               component="div"
-              count={rows.length}
+              count={rows && rows.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}
