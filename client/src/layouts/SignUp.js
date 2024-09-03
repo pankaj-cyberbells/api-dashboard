@@ -53,6 +53,7 @@ const StyledTable = styled(Box)(({ theme }) => ({
 
 const SignUp = () => {
   const dispatch = useDispatch();
+  const { isCreateUserAllowed } = useSelector((state) => state.auth);
   const { admins, loading, error } = useSelector((state) => state.admin);
   const [formData, setFormData] = useState({
     name: '',
@@ -161,6 +162,7 @@ const SignUp = () => {
                 color="primary"
                 fullWidth
                 type="submit"
+               
                 disabled={loading}
               >
                 {loading ? 'Signing up...' : 'Sign Up'}
@@ -203,6 +205,7 @@ const SignUp = () => {
                         variant="outlined"
                         color="secondary"
                         onClick={() => handleDelete(user._id)}
+                        disabled={user.email === 'gauravisonline@gmail.com'}
                       >
                         Delete
                       </Button>
