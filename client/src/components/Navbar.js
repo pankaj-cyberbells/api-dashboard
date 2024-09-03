@@ -3,6 +3,7 @@ import { AppBar, Toolbar, Button, Box, Dialog, DialogActions, DialogContent, Dia
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../features/authSlice';
+import logo from '../asset/wolf.png';
 
 function Navbar() {
   const dispatch = useDispatch();
@@ -61,6 +62,13 @@ function Navbar() {
         
         }}>CREATE USER</Button>
           </Box>
+
+          {/* Add logo here */}
+          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+            <img src={logo} alt="Logo" style={{ height: '70px' }} />
+          </Box>
+
+
           <Button color="inherit" onClick={handleClickOpen}sx={{
           backgroundColor: '#54595f', // Change to any color you like
           color: 'white',           // Text color
