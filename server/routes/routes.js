@@ -4,6 +4,7 @@ import { getAll, getByGroupByAggregate, getBySearchQuery, getCustomer, getDataBy
 import { createTarget, deleteTarget, getTarget, getTargets, updateAllTarget, updateTarget } from "../controller/target.js";
 import {createAdmin, deleteAdmin, getAllAdmins, login} from "../controller/admin.js";
 import { createNPS, deleteNPS, getAllNPS, getNPS, updateNPS } from "../controller/nps.js";
+import { createCommission,updateCommission,getCommission } from "../controller/commission.js";
 import { getKPIs, getKPI, createKPI, updateKPI, updateAllKPI, deleteKPI } from '../controller/KPIController.js';
 
 const router= express.Router();
@@ -48,6 +49,10 @@ router.get( "/data-by-store",  getDataByStore);
   
   // target data routes ====================>
 
+
+  router.get( "/getcomission", getCommission);    
+  router.post( "/createcommission", createCommission); 
+  router.patch( "/updatecommission", updateCommission);
 
   // NPS data routes ====================>
   
