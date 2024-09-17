@@ -32,6 +32,9 @@ const targetSchema = mongoose.Schema({
     type: Number,
     
   },
+  gpGreenTarget:{
+    type:Number,
+  },
   createdDate: { type: Date,  required: true },
 }, { timestamps: true });
 
