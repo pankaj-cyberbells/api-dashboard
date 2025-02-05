@@ -20,12 +20,19 @@ export const getAll=async (req,res)=>{
       const datares = await fetch(`https://tcpsvr121.clickpos.net/ctime/ctimeapi/Sales/SaleDatafusion?startdate=${startdate}&enddate=${enddate}`, {headers});
       
       // Check if the request was successful
-      // if (!datares.ok) {
-      //   throw new Error('Failed to fetch data from example.com');
-      // }
+      if (!datares.ok) {
+        console.log(`https://tcpsvr121.clickpos.net/ctime/ctimeapi/Sales/SaleDatafusion?startdate=${startdate}&enddate=${enddate}`)
+        throw new Error('Failed to fetch data from example.com');
+      }
       
      // Parse the JSON response
      const alldata = await datares.json();
+       // Check if alldata is an array
+    if (!Array.isArray(alldata)) {
+      throw new Error('Expected an array but received a different structure');
+    }
+    
+
      const aggregatedData= await aggregateSalesDataByStaff(alldata,'all')
      const filteredData = aggregatedData.filter(item => item.salesrep && item.salesrep.trim() !== "");
      // Merge rows by salesrep
@@ -278,8 +285,10 @@ try {
     }
     // Parse the JSON response
     const alldata = await datares.json();
+    // console.log("wefadf",alldata)
   const aggregatedData= await aggregateSalesDataByStaff(alldata,salelocation)
 
+    console.log(aggregatedData)
   const filteredResponse = aggregatedData.filter(item => item.salesrep && item.salesrep.trim() !== "");
 
   const missingSalesRepsCount = aggregatedData.filter(item => !item.salesrep).length;
@@ -297,6 +306,7 @@ try {
 
     return res.status(200).json( response);
 } catch (error) {
+  console.log(error)
   res.status(500).json({ message: error.message });
 }
 }

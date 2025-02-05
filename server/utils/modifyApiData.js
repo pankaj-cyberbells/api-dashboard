@@ -1867,6 +1867,7 @@ export async function aggregateSalesDataByStaff(data, location) {
     "Accessory GP total":"accGP",
     "Tyro Plan":"tyro",
     "Gross Profit":"grossprofit",
+ 
    
   };
 
@@ -1889,7 +1890,9 @@ export async function aggregateSalesDataByStaff(data, location) {
     const staffAggregations = {};
 
     store.SalesDataaggregation.forEach((sale) => {
+      console.log("sale",sale)
       const key = sale.SalesStaffName;
+            // Check if we already have an aggregation for this staff member
       if (!staffAggregations[key]) {
         staffAggregations[key] = {
           salesrep: sale.SalesStaffName,
@@ -1897,6 +1900,7 @@ export async function aggregateSalesDataByStaff(data, location) {
           SaleCount: 0,
           salelocation: storeName,
         };
+       
         // Initialize salesRecord with all product types and count as 0
         allProductTypes.forEach((productType) => {
           const mappedType = productTypeMapping[productType] || productType;
@@ -1919,7 +1923,12 @@ export async function aggregateSalesDataByStaff(data, location) {
       aggregatedData.push(aggregation);
     });
   });
-
+  aggregatedData.forEach((staff) => {
+    if (staff["Telstra Plus"] !== undefined) {
+      staff["Telstra Plus"] = staff["Telstra Plus"] / 2;
+    }
+  });
+// console.log(aggregatedData)
   return aggregatedData;
 }
 
