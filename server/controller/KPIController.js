@@ -90,13 +90,21 @@ export const getKPI = async (req, res) => {
       },
     });
 
-    if (!storedKPI) {
-      return res.status(404).json({ message: "No KPI target found for this store." });
-    }
-
     return res.status(200).json({ kpi: storedKPI });
+
+    // if (!storedKPI) {
+    //   return res.status(404).json({ message: "No KPI target found for this store." });
+    // }
+
+    // return res.status(200).json({ kpi: storedKPI });
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error" });
+    if (error.message === "Not Found") {
+      return res
+        .status(404)
+        .json({ message: "No target found for this user." });
+    } else {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
   }
 };
 
