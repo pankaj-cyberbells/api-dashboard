@@ -35,6 +35,12 @@ const targetSchema = mongoose.Schema({
   gpGreenTarget:{
     type:Number,
   },
+  gpTier2Threshold:{
+    type:Number,
+  },
+  gpTier3Threshold:{
+    type:Number,
+  },
   createdDate: { type: Date,  required: true },
 }, { timestamps: true });
 
